@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Security — Tinline" description="Tinline's security model, known limitations and vulnerability reporting contact.">
+  <main id="main" class="shell legal">
+    <h1>Security, clearly.</h1>
+    <p>Tinline is pre-release software. Open source is not a substitute for an independent security audit. Review the limitations before trusting it with sensitive conversations.</p>
+    <h2>Encrypted calls</h2>
+    <p>Calls use peer-authenticated iroh QUIC/TLS encryption, including when relayed. Signed device attestations bind each device to an identity, and signed grants authorize calls. Compare safety numbers through a trusted channel to confirm the person behind the identity.</p>
+    <h2>Local protection</h2>
+    <p>The recovery phrase and device secret key are encrypted in a vault with an optional passphrase. Android remembers an unlock key using Android Keystore so incoming calls can work in the background. Contacts and call history are local plaintext files protected by the operating system, not by the vault.</p>
+    <p>On desktop, no-passphrase identities use the system keyring when available. The current fallback stores a plaintext unlock key beside the vault; copying both exposes the identity. A long, unique passphrase provides a stronger file-copy protection model.</p>
+    <h2>What this does not protect</h2>
+    <ul><li>A compromised or already-unlocked device.</li><li>A stolen recovery phrase: there is no global device revocation.</li><li>Connection metadata: peers and relay/discovery providers can observe network information. Tinline is not anonymous.</li><li>Data already held by another person: local deletion does not remotely erase their copy.</li></ul>
+    <p>Tinline has no separate application-level media ratchet and is not an emergency-calling service. Calls require both devices to be reachable.</p>
+    <h2>Report a vulnerability</h2>
+    <p>Email <a href="mailto:osvauld@gmail.com">osvauld@gmail.com</a> with “Tinline security” in the subject. Include the version, affected platform and reproduction steps. Please do not send real recovery phrases, private keys or another person's data. Email is not an encrypted reporting channel; request a secure channel before sharing sensitive material.</p>
+    <p><a href="https://github.com/osvauld/tinline">View the app source on GitHub ↗</a></p>
+  </main>
+</Layout>

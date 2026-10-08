@@ -1,0 +1,30 @@
+---
+import '../styles/site.css';
+const { title, description = 'Tinline from Osvauld. Peer-to-peer voice calls. No phone number, no ads, no app analytics.' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#111411" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="shell nav">
+      <a class="brand" href="/">tinline<span>by Osvauld</span></a>
+      <nav aria-label="Main navigation"><a href="/privacy">Privacy</a><a href="/security">Security</a><a href="https://github.com/osvauld/tinline">Source ↗</a></nav>
+    </header>
+    <slot />
+    <footer class="shell footer"><a href="https://osvauld.com">An Osvauld product ↗</a><div><a href="/privacy">Privacy</a><a href="/security">Security</a><a href="mailto:osvauld@gmail.com">Contact</a></div></footer>
+  </body>
+</html>
