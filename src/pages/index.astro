@@ -4,9 +4,9 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Tinline — A direct line to your people">
   <main id="main" class="shell">
     <section class="hero">
-      <p class="eyebrow">PEER-TO-PEER VOICE · FROM OSVAULD</p>
+      <p class="eyebrow">PEER-TO-PEER CALLS &amp; CHAT · FROM OSVAULD</p>
       <h1>A direct line<br />to <em>your people.</em></h1>
-      <p class="lead">Your device. Their device. Your conversation.<br />Voice calls without a phone number, account registration or ads.</p>
+      <p class="lead">Your device. Their device. Your conversation.<br />Calls, messages and files without a phone number, account registration or ads.</p>
       <div class="actions"><a class="button" href="#how">How it works ↓</a><a class="text-link" href="https://github.com/osvauld/tinline">Explore the source ↗</a></div>
       <p class="status"><span aria-hidden="true">●</span> Pre-release · Android testing is being prepared</p>
     </section>
@@ -15,13 +15,22 @@ import Layout from '../layouts/Layout.astro';
       <div class="grid">
         <article><p class="number">01</p><h2>Make it yours.</h2><p>Create an identity on your device. Save your 24-word recovery phrase somewhere private: it is your way back in.</p></article>
         <article><p class="number">02</p><h2>Share a code.</h2><p>Add someone using their QR code or pasted contact code. Compare safety numbers through a trusted channel.</p></article>
-        <article><p class="number">03</p><h2>Just call.</h2><p>Calls connect device to device when possible. Encrypted traffic goes through a public iroh relay when a direct path isn't available.</p></article>
+        <article><p class="number">03</p><h2>Start talking.</h2><p>Call, send a message or share a file. Devices connect directly when possible; public iroh relays carry encrypted traffic when a direct path isn't available.</p></article>
       </div>
+    </section>
+    <section class="section">
+      <p class="eyebrow">MORE THAN A CALL.</p>
+      <div class="grid">
+        <article><h2>One-to-one chat.</h2><p>Send text, reply to a message, and edit or delete your own messages. Delivery indicators distinguish pending messages from those held by the other device—not whether someone has read them.</p></article>
+        <article><h2>Files &amp; photos.</h2><p>Share attachments through encrypted peer-to-peer transfers. Both devices need to be reachable while a transfer takes place.</p></article>
+        <article><h2>Say it in your voice.</h2><p>Record and play voice messages in a conversation. Chat records and stored attachment blobs are encrypted locally.</p></article>
+      </div>
+      <p class="small">Messages can wait locally while a contact is offline. Delivery resumes when both devices are online together; there is no server storing messages for offline recipients.</p>
     </section>
     <section class="section split">
       <div><p class="eyebrow">PRIVATE DOESN'T MEAN MYSTERIOUS.</p><h2 class="big">Know what<br />you're trusting.</h2></div>
-      <div><p>Calls are encrypted between your devices. The app has no advertising, analytics or tracking SDKs. The code is open source under GPL-3.0-or-later.</p><p>Tinline uses public relay and discovery infrastructure. Peers and network providers can see connection metadata. Your contacts and call history stay on your device; we do not receive a copy. Tinline is not an anonymity service.</p><a class="text-link" href="/security">Read the security limitations ↗</a></div>
+      <div><p>Calls, chat and file transfers use encrypted connections between your devices. The app has no advertising, analytics or tracking SDKs. The code is open source under GPL-3.0-or-later.</p><p>Tinline uses public relay and discovery infrastructure. Peers and network providers can see connection metadata. Your contacts and call history stay on your device; we do not receive a copy. Tinline is not an anonymity service.</p><a class="text-link" href="/security">Read the security limitations ↗</a></div>
     </section>
-    <section class="section release"><p class="eyebrow">A SMALL START. A REAL CONNECTION.</p><h2 class="big">Calling first.</h2><p>Native Android and desktop apps share one Rust core. Public download links will appear here when testing is ready. Chat, files and groups are development plans—not released features.</p><p class="small">Tinline is not an emergency-calling service.</p></section>
+    <section class="section release"><p class="eyebrow">A SMALL START. A REAL CONNECTION.</p><h2 class="big">Built for your devices.</h2><p>Native Android and desktop apps share one Rust core. Calls, one-to-one chat, attachments and voice messages are implemented in the current development build. Public download links will appear here when testing is ready. Group chat is still a development plan.</p><p class="small">Tinline is not an emergency-calling service.</p></section>
   </main>
 </Layout>

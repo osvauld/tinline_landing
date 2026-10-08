@@ -7,6 +7,10 @@ import Layout from '../layouts/Layout.astro';
     <p>Tinline is pre-release software. Open source is not a substitute for an independent security audit. Review the limitations before trusting it with sensitive conversations.</p>
     <h2>Encrypted calls</h2>
     <p>Calls use peer-authenticated iroh QUIC/TLS encryption, including when relayed. Signed device attestations bind each device to an identity, and signed grants authorize calls. Compare safety numbers through a trusted channel to confirm the person behind the identity.</p>
+    <h2>Chat and attachments</h2>
+    <p>One-to-one chat runs over authenticated peer connections. Signed update batches and per-message author signatures are checked before import. Conversation state uses Loro documents sharded by UTC day. These mechanisms are implemented in development builds; they are not a claim of an independent audit.</p>
+    <p>Chat record values are encrypted locally with a vault-derived key; record paths remain visible. Attachment blobs are stored encrypted under separate random keys, and serving is restricted to authorized peers. Display, playback and export can produce plaintext local copies outside that encrypted store.</p>
+    <p>Delivery requires the devices to overlap online. Delivered indicators acknowledge receipt by the other device, not reading by a person. There is no hosted offline mailbox, and group chat is not implemented.</p>
     <h2>Local protection</h2>
     <p>The recovery phrase and device secret key are encrypted in a vault with an optional passphrase. Android remembers an unlock key using Android Keystore so incoming calls can work in the background. Contacts and call history are local plaintext files protected by the operating system, not by the vault.</p>
     <p>On desktop, no-passphrase identities use the system keyring when available. The current fallback stores a plaintext unlock key beside the vault; copying both exposes the identity. A long, unique passphrase provides a stronger file-copy protection model.</p>

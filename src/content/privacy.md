@@ -2,8 +2,9 @@
 
 _Last updated: 8 October 2026_
 
-Tinline is a calling app made by Osvauld ("we"). It connects your device directly to the device of
-the person you call. This policy explains what that means for your data. We do not receive a copy of your contacts or call content, and the app contains no ads,
+Tinline is a calling and one-to-one messaging app made by Osvauld ("we"). It connects your
+device to the devices of your contacts. This policy explains what that means for your data.
+We do not receive a copy of your contacts, messages, attachments or call content, and the app contains no ads,
 analytics or tracking SDKs. Network metadata is processed by peers and third-party infrastructure
 as explained below.
 
@@ -43,14 +44,32 @@ it with can read those fields and try to redeem it.
   relay address and network addresses to a discovery service, also run by number 0, Inc. This
   record contains no name, phone number or contact list.
 
+## Messages and attachments
+
+- Text messages, replies, edits, files, photos and voice messages are shared with the contact
+  you choose over authenticated, encrypted peer connections. We do not hold a server-side copy.
+- Chat record values are encrypted locally using a key derived from the vault key. Database
+  paths and structural metadata are not hidden. Stored attachment blobs are encrypted with
+  separate random keys; those keys are kept in encrypted chat records.
+- Messages wait locally when a contact is offline and synchronize when both devices are
+  online together. A delivered indicator means the other device acknowledged the message,
+  not that the person read it.
+- Showing, playing, recording, saving or sharing media can create unencrypted local copies
+  in app-private caches or in a destination you select. Files exported to Downloads, a photo
+  library or another app are outside the encrypted blob store. Operating-system permissions
+  and device encryption protect local caches; vault encryption does not protect every copy.
+- Notifications can show a sender and message preview depending on your notification and
+  lock-screen settings. Recipients can retain or copy content you share.
+
 ## Permissions
 
-- **Microphone:** to send your voice during a call.
-- **Camera:** to scan a contact's QR code. Images are not saved or sent.
-- **Notifications and full-screen notifications:** to ring when someone calls, including on the
-  lock screen.
-- **Run in the background, start at boot, ignore battery optimisation:** so the app can keep its
-  connection open and receive calls when it is not on screen, like a phone line.
+- **Microphone:** to send your voice during a call and record a voice message you initiate.
+- **Camera:** to scan a contact's QR code or take a photo attachment you choose to send.
+- **Files and photos you select:** to attach them to a conversation or save received files.
+- **Notifications and full-screen notifications:** for incoming messages and calls; incoming
+  calls can ring over the lock screen.
+- **Run in the background, start at boot, ignore battery optimisation:** so the app can keep
+  its connection open and receive calls and messages when it is not on screen.
 
 ## What we do not do
 
@@ -66,15 +85,17 @@ Tinline is not directed at children under 13.
 ## Deleting your data
 
 Uninstalling removes Android's private app data. On desktop, removing the program may leave
-its data directory and keyring entry; remove those separately to delete local data. Copies you
-made or information already held by another device are not erased by uninstalling. Because we
+its data directory and keyring entry; remove those separately to delete local data. Removing
+a contact deletes that conversation locally and blocks subsequent communication from that
+identity. Edits or deletions synchronize when devices reconnect, but cannot guarantee that a
+recipient has erased copies. Exported files and information already held by another device
+are not erased by uninstalling. Because we
 hold no app-data copy, there is nothing for us to delete on our side. If you keep your recovery
 phrase, you can restore your identity later.
 
 ## Changes
 
-We will update this page when Tinline changes what it does, for example when chat is added, and
-change the date above.
+We will update this page when Tinline changes how it handles data and change the date above.
 
 ## This website
 
