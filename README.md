@@ -19,6 +19,12 @@ Routes: `/` (pre-release homepage), `/privacy` (app + website policy), `/securit
 (threat model/reporting). No analytics, external fonts or client-side scripts.
 No download links are invented while Android testing is pending.
 
+Colors follow the Android app's `LightTin`/`DarkTin` tokens and the OS color preference.
+Figtree and IBM Plex Mono are self-hosted with their OFL license notices in `public/fonts`.
+Production CSS must remain external (`build.inlineStylesheets: 'never'`): the Netlify CSP
+intentionally blocks inline styles. Run `node scripts/check-build.mjs` after building to
+check this constraint; CI runs the same check.
+
 ## Netlify continuous deployment
 
 1. In Netlify: **Add new project → Import an existing project → GitHub**.
