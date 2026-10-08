@@ -6,6 +6,7 @@ for (const route of ['', 'privacy/', 'security/']) {
   assert(!/<style(?:\s|>)/i.test(html), `${route || '/'}: inline CSS would be blocked by CSP`);
   assert(!/\sstyle\s*=/i.test(html), `${route || '/'}: inline style attribute blocked by CSP`);
   assert(!/<script(?:\s|>)/i.test(html), `${route || '/'}: unexpected client script`);
+  assert(html.includes('src="/logo.svg"'), `${route || '/'}: missing app logo`);
   const links = [...html.matchAll(/<link\b[^>]*>/gi)].map(([tag]) => tag);
   const stylesheets = links.filter(tag => /rel="stylesheet"/.test(tag));
   assert(stylesheets.length > 0, `${route || '/'}: missing external stylesheet`);
@@ -19,4 +20,5 @@ for (const route of ['', 'privacy/', 'security/']) {
 for (const font of ['figtree_variable.ttf', 'plexmono_regular.ttf']) {
   await access(`dist/fonts/${font}`);
 }
-console.log('Production pages use external CSS, app colors and self-hosted fonts; no inline styles/scripts.');
+assert.equal(await readFile('dist/favicon.svg', 'utf8'), await readFile('dist/logo.svg', 'utf8'), 'Favicon must match the app logo');
+console.log('Production pages use the app logo, external CSS, app colors and self-hosted fonts; no inline styles/scripts.');

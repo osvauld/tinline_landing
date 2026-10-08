@@ -46,8 +46,9 @@ a:hover { color: var(--accent); }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
 .shell { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
 .nav { display: flex; align-items: center; justify-content: space-between; padding-block: 30px; border-bottom: 1px solid var(--line); }
-.brand { font-size: 30px; font-weight: 650; letter-spacing: -1px; text-decoration: none; }
-.brand span { display: block; font: 11px 'IBM Plex Mono', monospace; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 30px; font-weight: 650; letter-spacing: -1px; text-decoration: none; }
+.brand-logo { display: block; width: 52px; height: 52px; flex-shrink: 0; }
+.brand-byline { display: block; font: 11px 'IBM Plex Mono', monospace; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
 nav, .footer div { display: flex; gap: 24px; }
 nav a, .footer a { font-size: 14px; text-decoration: none; }
 .hero { padding-block: 100px 85px; }
@@ -82,6 +83,8 @@ h2 { font-size: 25px; letter-spacing: -.025em; }
 @media (max-width: 650px) {
   .shell { width: calc(100% - 32px); }
   .nav { align-items: flex-start; gap: 18px; }
+  .brand { font-size: 25px; gap: 9px; }
+  .brand-logo { width: 44px; height: 44px; }
   nav { gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
   nav a { font-size: 12px; }
   .hero { padding-block: 65px; }

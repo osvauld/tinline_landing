@@ -22,7 +22,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="shell nav">
-      <a class="brand" href="/">tinline<span>by Osvauld</span></a>
+      <a class="brand" href="/" aria-label="Tinline by Osvauld — home">
+        <img class="brand-logo" src="/logo.svg" alt="" width="52" height="52" />
+        <span class="brand-wordmark">tinline<span class="brand-byline">by Osvauld</span></span>
+      </a>
       <nav aria-label="Main navigation"><a href="/privacy">Privacy</a><a href="/security">Security</a><a href="https://github.com/osvauld/tinline">Source ↗</a></nav>
     </header>
     <slot />
