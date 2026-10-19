@@ -36,11 +36,11 @@ On the shared development machine, follow the active task-manager admission rule
 - `/`: app-first alpha landing page and GitHub download link.
 - `/whitepaper`: `src/content/whitepaper.md`, an exact snapshot of app commit `26623f72` (18 October 2026).
 - `/security` and `/privacy`: site-owned public policies and explanations.
-- `/docs/*`: the preserved technical documentation, one Markdown file per page in `src/content/docs/`, ordered by frontmatter `order`.
+- `/docs/*`: current technical documentation for app version 0.1.38 at commit `dc0fb7c3`, one Markdown file per page in `src/content/docs/`, ordered by frontmatter `order`.
 - `/blog/*`: retained article drafts, not promoted on the homepage.
 - `/play/`: standalone design playground in `playground/`.
 
-The unfinished technical docs were retained during the launch-site replacement. They are visibly labelled older drafts and excluded from search indexing; the whitepaper is the newer implementation snapshot. Content snapshots do **not** synchronize automatically with the app repository; review implementation/status claims before publishing updates.
+The technical docs were refreshed against app version 0.1.38 (`dc0fb7c3`) and cover identity, contacts, linking, chat, groups, receipts, calls, platforms, threats and builds. Content snapshots do **not** synchronize automatically with the app repository; review implementation and status claims before publishing updates.
 
 Colors, icons, identity patterns and tick geometry are bundled here. To regenerate static art from local exports:
 

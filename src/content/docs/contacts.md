@@ -1,117 +1,94 @@
 ---
-title: Contacts
-description: "Contact tickets, the add-contact handshake, call grants, signed device lists, removal and safety numbers."
+title: Contacts and capabilities
+description: "Reusable contact tickets, held requests, message and call tokens, device-list continuity and blocking."
 order: 3
 ---
 
-# Contacts
+# Contacts and capabilities
 
-Tinline has no directory and no phone numbers. Two people become contacts by exchanging a
-signed, single-use **ticket** and then a pair of **grants**: tokens in which each DID says
-"you may call me". After that, each side learns the other's full set of devices from a
-**device list** signed by the other's DID.
+Tinline has no account directory or phone-number lookup. People exchange signed tickets out of
+band. A ticket lets someone submit a contact request; it does not silently make them a contact.
 
-## The ticket
+## Contact tickets
 
-The ticket is what the QR code and the "copy code" button carry. The current format (v2) is
-`OSVC2:` followed by uppercase base32 without padding, so the QR code can use alphanumeric mode
-(about 260 characters). Its binary body is:
+The current ticket text is `OSVC2:` followed by case-insensitive unpadded base32. Its signed body
+contains the issuer's account public key, one current device endpoint, a nonce, expiry, display
+name and relay hint. The account key signs the canonical body under the contact-ticket domain.
+`osvc1` is not accepted.
 
-```text
-signing_pk[32] | device[32] | nonce[6] | exp[3] | flags[1] | name[n] | relay_ext | sig[64]
-```
+A ticket is a bearer capability:
 
-- `signing_pk` is the owner's DID key; `device` is the device to dial.
-- `nonce` makes the ticket single-use. `exp` is minutes since 2026-01-01 UTC (24-bit).
-- `flags` packs a relay code (one of the four n0 relays, none, or a custom URL in `relay_ext`)
-  and the name length, so names are capped at 31 bytes.
-- `sig` is the DID's Ed25519 signature over `osvauld/p2p/invite/v2\0 || 0x02 || body`.
+- it is normally valid for seven days;
+- it can be used by multiple people while valid;
+- resetting it retires the code for new requests;
+- anyone who obtains it can submit a request, so it should be shared intentionally.
 
-Nothing is displayed that is not signed. The older v1 format (`osvc1.` + base64url JSON) is
-still accepted.
+Visible names, addresses and hints are accepted only when they match the signed body.
 
-The app hands out one ticket at a time. Tickets live 7 days, and one with less than a day left
-is replaced. Redeeming it, renaming yourself, removing a contact or resetting the code all
-retire the current ticket, so a leaked old code is dead even if nobody used it.
+## Request and acceptance
 
-## Adding a contact
+The scanner dials the ticket's device and sends:
 
-B scans A's ticket and dials A's device.
+- its account-signed device attestation;
+- its display name;
+- the signed ticket;
+- a signature binding the ticket nonce and both connected devices;
+- a message token for the ticket owner and, when allowed, a separate call token.
 
-```text
- B (scanner)                                           A (ticket owner)
-   │  ContactHello                                         │
-   │   attestation(B → B.dev), B's name, A's invite,       │
-   │   binding = sign_B(bind ‖ nonce ‖ B.dev ‖ A.dev),     │
-   │   grant_for_you (B lets A call B)                     │
-   │ ────────────────────────────────────────────────────▶ │
-   │                                                       │ checks, then one
-   │                                                       │ sealed write
-   │  ContactWelcome                                       │
-   │   attestation(A → A.dev), A's name, grant for B       │
-   │ ◀──────────────────────────────────────────────────── │
-```
+The owner verifies the ticket, expiry, connected device, attestation, binding and tokens before
+persisting a **pending request**. Requests are keyed by requester DID and bounded to 64 entries;
+throwaway identities can fill that inbox, so the bound is resource control rather than spam
+prevention.
 
-A accepts only if every check passes: the invite is signed by A and names A's device, it is
-unexpired, its nonce is unspent, B's attestation is valid and names the device that actually
-connected, the binding verifies under B's DID for this nonce and these two devices, and B's
-grant is issued by B to A.
+The app then offers Accept or Not now. Pending requests are counted on the Contacts tab, and
+Android uses a high-priority contact-request notification when the app is not in the foreground.
+Acceptance revalidates the request at the current time and atomically stores the contact,
+redemption marker and welcome outbox entry. The welcome is retried to the requesting device. Not
+now sends no decline signal.
 
-A then commits the new contact, the spent nonce and the retired ticket **in one sealed-store
-write, before** it sends `ContactWelcome`. If that write fails it sends `Reject`, nothing has
-changed, and the same ticket can be tried again.
+## Message and call tokens
 
-B checks that A's attestation matches the ticket's DID and device, that the device equals the
-one it connected to, and that the grant is issued by A to B. On any failure, either side sends
-`Reject` and closes; the reason is for logs and is never trusted.
+A relationship uses separate account-signed capabilities:
 
-## Grants
+- a **message token** admits direct chat and related history/blob operations;
+- a **call token** admits calls.
 
-A grant is A's signed statement that B's DID may call A. It carries a random 16-byte id and an
-expiry of a year. Every answered call returns a `renewed_grant`, which replaces the stored one
-only if it is validly signed by the callee for us and expires later. Grants belong to the
-identity, so any of B's devices with a valid attestation can use B's grant.
+Both name issuer, holder, issue and expiry times, nonce and capability. They are checked alongside
+the QUIC-authenticated device and account attestation. Contacts added by direct ticket normally
+exchange both. A contact introduced through a group chat request starts message-only until calls
+are enabled.
 
-## Device lists
+Disabling calls raises a local cut-off for that DID without ending chat. Blocking raises both
+message and call cut-offs. Tokens near expiry are renewed on authenticated protocol paths.
 
-A `DeviceList { v: 1, did, seq, devices: [{ device, relay? }] }` is signed by the DID under its
-own domain. It holds 1 to 8 devices with no duplicates; `seq` is the signer's clock in
-milliseconds. Every `CallHello` and `Accept` carries the sender's current list.
+## Signed device lists
 
-- A received list replaces the stored one only if it is newer: higher `seq`, and on a tie the
-  larger signature, so every receiver converges on the same list. Older, forged or other-DID lists
-  change nothing.
-- A list that contains a device not seen before **resets "verified"** for that contact.
-- Once a contact has a list, a device outside it that calls with a valid attestation is accepted
-  for that call, is not dialled later, and also resets "verified".
+A contact's account signs its current callable devices, relay hints and recent endpoint succession
+links. Lists contain one to eight devices. Higher sequence wins; the signature bytes break an
+equal-sequence tie deterministically.
 
-## Removing a contact
+Lists travel during calls and are pushed after linking, unlinking and restore, and after endpoint
+rotation when that optional core policy is enabled. Contacts can therefore infer the number of
+devices listed as callable. They do not receive private device labels.
 
-There is no revocation message. Removing a contact is a **block**: the contact, their call
-history and their conversation are deleted, and their DID goes on a blocked list. Calls and chat
-sessions from a blocked DID get the same generic refusal as any other failure. The removal is a
-tombstone that syncs to your other devices. Re-adding them by scanning *their* ticket lifts the
-block everywhere.
+Succession links let the core recognize an enabled endpoint rotation as continuity with a known
+installation. Version 0.1.38 removed the apps' safety-number comparison, Verify action and
+“Verified” badge; there is no user-facing verification workflow to preserve or reset.
 
-## Safety numbers
+Display names are self-asserted and non-unique. They are sanitized and bounded, but they are not
+identity evidence. For a high-stakes identity check, compare the DID through a separate trusted
+channel.
 
-Names are self-reported and not unique. To confirm the person, compare safety numbers through a
-channel you trust, in person or on a known call.
+## Blocking
 
-For each party: `H = SHA-512("tinline-safety-v1" || signing_pk)`, then 5200 rounds of
-`H = SHA-512(H || signing_pk)`. The first 30 bytes give six 5-byte groups, each read as a
-big-endian integer mod 100000. The two 30-digit halves are joined in sorted order and shown as
-12 groups of 5 digits.
+Blocking is represented by an account-signed notice and enforced by the blocker's own devices.
+Tinline's unmodified app on the other side cooperatively removes the contact entry, but remote
+deletion cannot be forced against a modified client.
 
-Only the DID keys count, so the number does not change when someone adds a device. The
-"verified" mark is stricter: it is tied to the device set it was given for and resets when a new
-device appears.
+A blocked DID cannot use the message/call tokens previously issued by the blocker. It can still
+retain content and endpoint addresses it already learned and can continue attempting connections
+to them. Because rotation is disabled by default, version 0.1.38 does not put a default lifetime on
+that address knowledge. Blocking does not enable rotation and does not alter shared group
+membership.
 
-## Limits worth knowing
-
-- Until it is redeemed, a ticket is a bearer secret: whoever scans it first becomes the contact.
-  Show it in person.
-- Names from peers have control and bidirectional-override characters stripped and are cut to
-  64 characters.
-- An unauthenticated connection holds one of 24 slots (plus 8 reserved for contacts' devices)
-  and has 15 seconds to deliver its hello.
+Unblocking requires a new contact exchange; cut-offs never move backwards.

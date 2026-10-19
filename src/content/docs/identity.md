@@ -1,129 +1,113 @@
 ---
-title: Accounts and keys
-description: "The 24-word phrase, did:key identities, per-install device keys, accounts, the Argon2id vault and the sealed stores."
+title: Accounts and devices
+description: "The root secret, did:key identity, rotating per-install endpoint keys, the vault and sealed local stores."
 order: 2
 ---
 
-# Accounts and keys
+# Accounts and devices
 
-## Person and device
+## Root secret and DID
 
-Tinline separates **who you are** from **which device you are using**.
+A Tinline account starts with 256 random bits called the **root secret**. It can be exported as a
+BIP39 recovery phrase or as a one-line checksummed `tlkey-…` recovery key. These are two
+representations of the same account secret, not separate credentials.
 
-- **Identity.** A BIP39 24-word recovery phrase derives an Ed25519 signing key. Its public
-  half is written as a `did:key:z…` DID. The DID is the person, and it is what your contacts
-  store. The same phrase gives the same DID on every device.
-- **Device key.** Each install generates a random Ed25519 key for each account it holds. Its
-  public half is that account's iroh `EndpointId` on this device, so the QUIC/TLS handshake
-  itself proves which device is on the other end. The device key is how people *reach* you;
-  the identity is who they reach. Restoring or linking on a new device always creates a new
-  device key.
-- **Attestation.** The DID signs `{v, did, device, iat}`: "this device is mine". A device
-  presents its attestation in every handshake, and the receiver checks that the attested
-  device equals the device that actually connected.
+The BIP39 seed is passed through HKDF-SHA256 with context `osv/identity/signing/v1` to derive an
+Ed25519 account key. The public key is represented as `did:key:z…`, including the Ed25519
+multicodec prefix before base58 encoding. The DID is self-authenticating: verification needs no
+account registry or resolver.
 
-### Signed blobs
+The root secret is the identity. Anyone retaining it can sign as the account. Tinline therefore
+does not claim cryptographic revocation of a hostile linked device.
 
-Everything signed in the protocol is a `SignedBlob { payload, signature }`, with the signature
-over `DOMAIN || payload`. Domains are `osvauld/p2p/{attest,invite,grant,bind,devices}/v1\0` and
-`osvauld/p2p/invite/v2\0`, so a signature for one kind of object can never be replayed as
-another. The verifying key is always recovered from the DID named inside the payload, and the
-caller then compares that DID with the one it expected.
+## Account key, install and endpoint key
 
-## Accounts
+Tinline separates three identifiers:
 
-One install can hold several accounts (identities):
+- **DID/account key:** stable identity and author of application statements.
+- **Install ID:** stable identifier for one installation of the account.
+- **Device endpoint key:** random Ed25519 key used as the private iroh endpoint identity. The
+  QUIC/TLS connection proves possession of it.
 
-```text
-<root>/accounts/<id>/account.json   readable: version, name, DID, device public key, vault
-<root>/accounts/<id>/account.redb   sealed: contacts, grants, call history, device label, sync doc
-<root>/accounts/<id>/chat.redb      sealed: conversations, outbox, blob keys
-<root>/accounts/<id>/blobs/         ciphertext: attachments, voice messages, closed days
-<root>/current                      which account is selected
-```
+The account signs an attestation binding its DID to the current device key. Application admission
+checks that attestation, confirms the attested key is the QUIC peer, checks the expected DID and
+requires the appropriate token or relationship.
 
-`<id>` is the DID after `did:key:`. **Only the selected account is unlocked and online on a
-device.** Switching stops the endpoint, forgets the previous account's secrets and state, and
-starts the next one; switching is refused during a call. Other accounts on the device do not
-ring there. Keeping every account online would mean one always-on endpoint per account, which
-costs battery; making a new identity, or linking an account to another device, is cheap.
+Content authorship is signed by the account key. Device keys authenticate connections and
+transport batches; they are not the long-term author identity.
 
-Background work (call tasks, history writes, device updates) carries the session it started
-under and is refused once a different account is open, so it can never write into the wrong
-account.
+## Endpoint rotation
 
-## The vault
+Private and hosting-group endpoint rotation is implemented and crash-safe, but the default policy
+in version 0.1.38 is **disabled**. The apps expose neither an enable switch nor a lost-touch screen.
+When a caller explicitly enables the core policy, its standard schedule is seven days plus up to
+one day of persisted jitter, with a seven-day announcement period. A host can then rotate its
+group endpoint too; an ordinary group member does not.
 
-`account.json` holds the identity. Its secrets are in `vault`:
+The old endpoint key signs a succession link to the new one. A contact can preserve verification
+when a valid chain reaches a key it already knew. An installation retains its latest four links;
+a device-set change that cannot be connected through those links is treated as an unlinked change
+and resets verification.
 
-```json
-{
-  "version": 2,
-  "name": "alice",
-  "did": "did:key:...",
-  "device_public": [32 numbers],
-  "vault": { "salt": "b64", "m": 65536, "t": 3, "p": 4, "wrapped_dek": "b64", "sealed": "b64" }
-}
-```
+An enabled rotation changes neither the DID nor the install ID, writer identity, grants or
+conversations. Blocking, contact removal, group removal and host revocation do not trigger or
+reschedule it. If a contact misses an enabled announcement window, the core records `lost_touch`;
+app controls and recovery UI for that state are not built.
 
-- `sealed` is AES-256-GCM of `{"mnemonic", "device_secret"}` under a random 32-byte **data key**
-  (DEK).
-- `wrapped_dek` is the DEK under a key derived as `Argon2id(passphrase, salt, m = 64 MiB, t = 3,
-  p = 4)`. Parameters outside m 64–256 MiB, t 3–10, p 1–8 or a salt outside 16–64 bytes are
-  refused, so a tampered file cannot downgrade them.
-- Changing the passphrase re-wraps the same DEK with a new salt.
+## Accounts on one installation
 
-`name`, `did` and `device_public` stay readable so the lock screen and account switcher can show
-them while the account is locked.
+One installation may hold several accounts, but only the selected account is unlocked and online.
+Switching accounts closes its endpoints, drops unlocked secrets and opens the selected account;
+switching is refused during a call. Other accounts do not ring on that device.
 
-The passphrase is **optional**. Without one, only the platform's remembered copy of the DEK
-opens the vault: one Android Keystore-wrapped blob per account, or one OS keyring entry per
-account on desktop. A desktop with no secure keyring requires a passphrase.
+The account directory contains a readable profile and sealed databases. The exact rows evolve,
+but the security boundary is:
 
-### Nothing is written until the key is safe
+| data | readable while locked? |
+|---|---|
+| Display name, DID and device public key | **yes**, deliberately, for account selection and lock UI |
+| Root secret and device private key | no; sealed in the vault |
+| Contacts, tokens, blocks, call log and sync state | no; sealed records |
+| Chats, groups, receipts and local search data | no; sealed records |
+| Attachment and history contents | no; independently encrypted blobs |
+| Directory names, record paths, activity days, sizes and blob hashes | **yes**, as storage-layout metadata |
 
-With no passphrase, the DEK exists only in the platform's key store, so an account written to
-disk before that key was saved could be lost for good. Creating or restoring a no-passphrase
-account therefore writes nothing: the identity lives in memory until the app has saved the key
-and calls `commit_identity()`. If the save fails, onboarding offers Retry or "Add a passphrase
-instead", and process death simply starts onboarding again with nothing on disk.
+## Vault
 
-## Sealed stores
+The root secret and current device private key are sealed with AES-256-GCM under a random data key
+(DEK). When a passphrase is set, Argon2id derives a wrapping key using stored parameters (normally
+64 MiB, three iterations and four lanes), and the DEK is wrapped under it. Parameters outside the
+accepted safety range are rejected rather than silently weakened.
 
-`account.redb` and `chat.redb` are redb stores where every value is sealed with AES-256-GCM and
-bound to its key path, so a record cannot be moved to another key. Their keys are derived from
-the **recovery phrase**:
+A passphrase is optional. Android can remember the DEK using Android Keystore. Desktop remembering
+is optional and requires an available secure OS keyring; otherwise a passphrase is required.
+Creating or restoring a no-passphrase account is not committed to disk until the platform has
+successfully saved and read back its remembered key.
 
-```text
-BLAKE3-derive-key("tinline/account-store/v2", normalised phrase)
-BLAKE3-derive-key("tinline/chat-store/v2",    normalised phrase)
-```
+Revealing the root secret or changing the passphrase requires the passphrase when one is set.
+A device that is already unlocked can still act as the account.
 
-The phrase itself exists on disk only inside the vault, so the stores are still protected by
-the passphrase. But forgetting the passphrase no longer loses data: restoring the 24 words on the
-same device **restores in place**, reopening contacts, call history and chats with a new
-passphrase and a new device key.
+## Sealed stores and blobs
 
-Stores written by older versions under the DEK are re-sealed under the phrase key on first
-unlock, every row in one redb transaction: a crash leaves either the old file or the new one.
+Account, chat, group and search stores use separate keys derived from the root secret and their
+store context. Values are AES-256-GCM sealed and bound to their record paths, so a ciphertext row
+cannot be moved to a different key and remain valid. Loro documents, postcard records and JSON
+profile values all exist inside this storage model; there is not one universal encoding.
 
-| what | where | readable without unlocking? |
-|---|---|---|
-| Recovery phrase, device secret | `account.json` vault | no |
-| Account name, DID, device public key | `account.json` | **yes**, for the lock screen |
-| Contacts, grants, blocks, spent ticket nonces, the current ticket | `account.redb` | no |
-| Call history, availability, device label, own-device sync doc | `account.redb` | no |
-| Conversations, outbox, read cursors, attachment keys | `chat.redb` | no |
-| Attachments, voice messages, closed chat days | `blobs/` | no, random key per file |
-| Which records exist (`state`, `calls`…) and how many accounts | file and record names | yes |
+Files use fresh random AES-256-GCM keys and 64 KiB encryption chunks. Ciphertext is addressed by
+its BLAKE3 hash and transferred through iroh-blobs, whose own 16 KiB chunks support resumable
+transfer. Encryption chunking and transfer resumption are separate layers.
 
-Directories are `0700`, files `0600`, and secrets in memory are zeroized on drop. Encrypted
-files do not prove that older plaintext was securely deleted from flash storage.
+Stores use long-lived per-store keys with random nonces rather than a ratchet. There is no forward
+secrecy for copied local data. Filesystems and flash translation layers also prevent a reliable
+secure-deletion promise.
 
-## What a passphrase buys
+## Linking versus succession
 
-With a passphrase, and without an accessible remembered key, someone who copies the app's files
-or a backup gets ciphertext that is only as strong as the passphrase; Argon2id slows guessing.
-With a platform-remembered key, a stolen phone that unlocks itself can still place and receive
-calls, but cannot show the recovery phrase or change the passphrase without the passphrase. None
-of this protects against malware running as the app or a rooted, unlocked device.
+Linking copies the root secret to another device. Unlinking removes that installation from normal
+sync and dialing, but cannot stop a device that retained the secret from creating a fresh key and
+signing as the account.
+
+A separate account-identity succession design would let the old account key name a replacement
+DID and let contacts follow it operationally. That is **not implemented**. Old signatures would
+remain mathematically valid, and competing succession statements still require a conflict policy.

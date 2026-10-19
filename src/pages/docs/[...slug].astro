@@ -13,10 +13,10 @@ const { doc, prev, next } = Astro.props;
 const { Content } = doc;
 const href = (slug: string) => (slug ? `/docs/${slug}` : '/docs');
 ---
-<Layout title={`${doc.title} — Tinline docs (draft)`} description={doc.description} noindex>
+<Layout title={`${doc.title} — Tinline technical documentation`} description={doc.description}>
   <div class="shell docs">
     <nav class="docs-nav" aria-label="Documentation">
-      <p class="eyebrow">DOCUMENTATION · OLDER DRAFT</p>
+      <p class="eyebrow">TECHNICAL DOCUMENTATION</p>
       <ul>
         {docs.map(d => (
           <li><a href={href(d.slug)} aria-current={d.slug === doc.slug ? 'page' : undefined}>{d.title}</a></li>
@@ -25,7 +25,7 @@ const href = (slug: string) => (slug ? `/docs/${slug}` : '/docs');
     </nav>
     <main id="main" class="docs-body">
       <aside class="note" aria-label="Documentation status">
-        <p>These technical notes are an older draft and have not been updated for the current alpha. Some protocol and feature descriptions are out of date. Read the <a href="/whitepaper">18 October 2026 whitepaper</a> for the newer implementation snapshot.</p>
+        <p>Implementation snapshot: Tinline 0.1.38 (`dc0fb7c3`). This pre-release software has not had an independent security audit, and the implementation described here is newer than the currently published release.</p>
       </aside>
       <Content />
       <nav class="docs-pager" aria-label="Previous and next page">

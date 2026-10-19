@@ -1,82 +1,95 @@
 ---
 title: Build and test
-description: "Building Tinline from source, the Rust and end-to-end test suites, and how releases are packaged."
-order: 9
+description: "Building Tinline 0.1.38, running targeted Rust and end-to-end tests, and producing Android and Linux release candidates."
+order: 11
 ---
 
 # Build and test
 
-The source is at [github.com/osvauld/tinline](https://github.com/osvauld/tinline), licensed
-GPL-3.0-or-later. The workspace needs a recent Rust toolchain; Android builds also need the
-Android SDK and NDK (cargo-ndk is driven by the build script). Scripts are Python 3.
+The app source is [github.com/osvauld/tinline](https://github.com/osvauld/tinline), licensed
+GPL-3.0-or-later. Version 0.1.38 at app commit `dc0fb7c3` is the implementation snapshot described
+by these pages; it is newer than the currently published public release.
 
-## Build
+## Desktop and peer tools
 
-```sh
-cargo build --release -p desktop -p peer           # desktop app + headless test peer
-./target/release/p2p-desktop                       # tray app; --data DIR for a separate profile
-python3 scripts/build_android.py --install --abis x86_64   # emulator build
-python3 scripts/build_android.py --install                 # adds arm64 for phones
-```
-
-End-to-end tests use a desktop build with test hooks. Never ship it:
+A recent stable Rust toolchain plus Linux audio/windowing build dependencies is required.
 
 ```sh
-cargo build --release -p desktop --features test-hooks
+cargo build --locked --release -p desktop -p peer
+./target/release/p2p-desktop
 ```
+
+`--data DIR` starts the desktop app with a separate profile. Test hooks are for controlled test
+builds only and must not ship:
+
+```sh
+cargo build --locked --release -p desktop --features test-hooks
+```
+
+## Android
+
+Android builds need the SDK, NDK and cargo-ndk. The repository helper builds the pinned native
+video dependency and delegates to Gradle:
+
+```sh
+python3 scripts/build_android.py --install --abis x86_64  # emulator
+python3 scripts/build_android.py --install                # x86_64 + arm64-v8a
+```
+
+Installation changes a device and should only be done on an explicitly selected test device. The
+release workflow uses an owner-controlled signing keystore; local debug signing is not a release
+artifact.
 
 ## Rust tests
 
-`cargo test --workspace` runs 247 tests, and CI runs them on every push and pull request. The
-integration tests in `crates/core/tests/` start real nodes and use n0's public relays.
-
-| suite | tests | covers |
-|---|---|---|
-| `proto` | 46 | Every handshake check with a negative test: tickets, grants, bindings, device lists, link QR and proofs, frames |
-| `identity`, `cryptography` | 35 | Mnemonic → DID, signing, AEAD, ECIES, HKDF and Argon2id |
-| `core` unit | 45 | Sealed stores, re-keying, chat batch validation and signatures, blob encryption and gating, the hardened voice-message parser |
-| `core/tests/fanout.rs` | 13 | Ringing all devices, first answer wins, simultaneous answers, global decline, cancel |
-| `core/tests/link*.rs` | 20 | Linking, expiry, own-device sync of contacts, history and chats, read state, unlink |
-| `core/tests/calls.rs` | 11 | Glare, cancel, decline, call waiting, unavailable, history |
-| `core/tests/accounts.rs`, `restore.rs`, `vault.rs` | 25 | Account switching and isolation, migration, commit after key save, restore in place |
-| `core/tests/tickets.rs`, `devices.rs` | 5 | Dead tickets, removed contacts, unfamiliar devices reset "verified" |
-| `audio` | 11 | Codec and jitter buffer under loss, bursts, clock drift, peer restart, DRED |
-| `desktop` | 32 | Per-account keyring, onboarding flow, media safety, migration |
-| `storage` | 4 | Sealed records, wrong keys, moved records |
-
-## End-to-end scripts
-
-| command | what it proves |
-|---|---|
-| `scripts/e2e_desktop.py` | Two peers add each other and call both ways, direct **and** relay-only |
-| `scripts/desktop_e2e.py tone\|mic` | Desktop app against a peer; `mic` uses the real capture path |
-| `scripts/e2e_callwait.py` | Call waiting: decline, end-and-answer, ignore |
-| `scripts/e2e_chat.py` | Chat sync, a 50 MB attachment, a non-party refused, restart and offline catch-up |
-| `scripts/e2e_link.py` | Linking a device; contacts and history arrive; calls ring both; unlink |
-| `scripts/e2e_android.py --fresh` | Emulator app against a desktop peer, both directions |
-| `scripts/e2e_android_link.py` | The Android app as existing and as new device in a link |
-| `scripts/audio_compare.py` | Speech in vs speech out: delay and envelope correlation |
-
-Also checked by hand on an emulator: screen off, forced doze, `kill -9` of the service, and a
-reboot followed by an incoming call ringing over the lock screen.
-
-## Releases
-
-CI builds a signed universal Android APK (arm64-v8a and x86_64), a Linux x86_64 tarball and a
-Debian package. A tagged build creates a draft GitHub release; publishing it uploads the files
-and a signed APT repository to `repo.osvauld.com`, with a `SHA256SUMS` file per release.
+CI runs the locked workspace suite. During development, prefer the smallest package and named test
+target that covers a change rather than compiling every integration binary:
 
 ```sh
-sudo curl -fsSLo /usr/share/keyrings/tinline.gpg https://repo.osvauld.com/tinline.gpg
-echo "deb [signed-by=/usr/share/keyrings/tinline.gpg] https://repo.osvauld.com/apt stable main" \
-  | sudo tee /etc/apt/sources.list.d/tinline.list
-sudo apt update && sudo apt install tinline
+cargo test --locked -j 2 -p proto --lib
+cargo test --locked -j 2 -p p2pcore --test private_rotation
+cargo test --locked -j 2 -p p2pcore --test message_receipts
+cargo test --locked -j 2 -p p2pcore --test group_g3
 ```
 
-These commands work once the first release is published. APT handles desktop updates; a
-directly installed APK does not update itself.
+At the 0.1.38 snapshot, the three named core integration targets pass together (17 tests). The
+`video_call` library filter also passes (56 tests), covering codec controls, statistics, path
+classification and adaptation policy. These targeted runs do not replace the full workspace,
+platform or device suites.
 
-## Contributing and reporting
+Integration tests create real local nodes and some use public iroh infrastructure, so distinguish
+deterministic offline failures from network-dependent validation.
 
-Issues and pull requests are welcome on GitHub. Report security problems privately, as described
-on the [Security](/security) page, not in a public issue.
+## End-to-end tools
+
+The repository includes focused Python harnesses for, among other paths:
+
+- direct and relay-only desktop calls;
+- desktop/app audio paths and speech comparison;
+- chat, attachment and offline catch-up;
+- device linking and desktop↔phone synchronization;
+- Android calls, presence and video;
+- call waiting, group calls and capacity/latency experiments.
+
+Read each script's header before use: several need prebuilt binaries, test hooks, emulators,
+physical devices or network access. Model and simulation scripts demonstrate stated properties of
+their model; they do not prove production integration.
+
+## Release candidates
+
+The release workflow validates a stable `X.Y.Z` tag and builds:
+
+- a Linux x86-64 tarball;
+- a Debian package;
+- an AppImage;
+- a signed universal Android APK for `arm64-v8a` and `x86_64`;
+- checksums and package inspection output.
+
+A tag creates a **draft** GitHub release. Publishing and repository upload are separate authorized
+steps. Windows and macOS artifacts are not produced or supported.
+
+## Security interpretation
+
+A successful build or test run is not an independent security audit. Release readiness also
+requires dependency/licence review, signing verification, package inspection, protocol-focused
+review and device/network validation appropriate to the artifact being published.

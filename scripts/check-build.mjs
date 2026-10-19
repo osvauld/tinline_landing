@@ -23,9 +23,11 @@ for (const route of ['', 'privacy/', 'security/', 'whitepaper/', 'blog/', ...liv
   }), `${route || '/'}: inline or foreign client script ${scripts}`);
   assert(html.includes('src="/logo.svg"'), `${route || '/'}: missing app logo`);
   if (docRoutes.includes(route)) {
-    assert(/<meta name="robots" content="noindex"/.test(html), `${route}: older draft must not be indexed`);
-    assert(html.includes('These technical notes are an older draft'), `${route}: missing draft notice`);
-    assert(html.includes('href="/whitepaper"'), `${route}: missing newer whitepaper link`);
+    assert(!/<meta name="robots" content="noindex"/.test(html), `${route}: current technical documentation must be indexable`);
+    assert(html.includes('Implementation snapshot: Tinline 0.1.38'), `${route}: missing implementation-version notice`);
+    assert(html.includes('has not had an independent security audit'), `${route}: missing audit notice`);
+    assert(html.includes('TECHNICAL DOCUMENTATION'), `${route}: missing documentation label`);
+    assert(!html.includes('older draft'), `${route}: stale older-draft label`);
   }
   const links = [...html.matchAll(/<link\b[^>]*>/gi)].map(([tag]) => tag);
   const stylesheets = links.filter(tag => /rel="stylesheet"/.test(tag));

@@ -1,68 +1,89 @@
 ---
 title: Threat model
-description: "What each protocol check defends against, what Tinline does not protect, and known gaps."
-order: 8
+description: "The adversaries Tinline considers, the guarantees signatures and encryption provide, and explicit non-goals."
+order: 10
 ---
 
 # Threat model
 
-Tinline is pre-release software without an independent audit. This page states what the design
-is meant to defend, and where it stops. For reporting a vulnerability, see
-[Security](/security).
+Tinline is pre-release software without an independent security audit. It aims to protect content
+confidentiality from outsiders and relays and to make accepted authorship/receipt claims
+verifiable. It does not promise anonymity, availability or denial-of-service resistance.
 
-## What each check defends against
+## Adversaries
 
-| check | defends against |
+The protocol is open, so peers may run modified clients. Treat contacts, group members, hosts,
+call participants, relays, network operators and strangers as potentially malicious within the
+keys and content they legitimately possess.
+
+A device holding your account root secret is not cryptographically distinguishable from you. It
+can make new attestations, author content and sign receipts. Unlinking is not revocation.
+
+## Main checks
+
+| mechanism | security purpose |
 |---|---|
-| Domain-separated signatures | A signed object of one kind replayed as another |
-| Key recovered from the claimed DID, then compared with the expected issuer | Forged claims; objects signed by the wrong party |
-| Attested device equals the connected device | A relay or man-in-the-middle forwarding someone else's hello over its own connection |
-| Ticket's visible fields equal its signed fields | A tampered QR or code swapping name, device or relay |
-| Invite issued by me, for my device | Redeeming another person's or another device's ticket here |
-| Expiry on tickets and grants | Stale QR codes; grants living forever |
-| Spent-nonce set | Replaying a captured hello to add a second contact from one ticket |
-| Binding over nonce and both devices | Lifting a hello onto another ticket or device pair |
-| Grant holder equals the attested DID; grant issued by me | Stolen grants; grants minted by third parties |
-| Contact check on every call | A valid grant surviving after the contact was removed |
-| Device list signed by the DID, newest wins, 1–8 devices | Forged or replayed device lists; dial amplification |
-| "Verified" resets on an unfamiliar device | A new device silently inheriting trust |
-| `Cancel` honoured only on that call's connection | A third party stopping someone else's ringing |
-| Link proof bound to the QR secret, role and both devices | A scanner without the QR; reflected or replayed proofs |
-| Link confirmation code, 5-minute single-use QR | A photographed QR raced by a third device |
-| Own-device sync needs an attestation of our own DID, not removed | Contacts, strangers or unlinked devices entering account sync |
-| One Loro peer id per chat batch, signed by its device | Ops forged in someone else's name |
-| Per-message author signatures over the doc id | Rewritten, replayed or rolled-back messages |
-| Blob serving gated on contact and message reference | Fetching attachments you were never sent |
+| Domain-separated canonical signatures | Prevent a valid signed statement from being reinterpreted as another kind. |
+| DID key recovered from the claim and compared with the expected party | Reject forged and wrong-issuer account statements. |
+| Account attestation equals the QUIC-authenticated endpoint | Bind the claimed account device to the connection. |
+| Message/call tokens checked against issuer, holder, time and local cut-offs | Restrict direct-chat and calling capabilities. |
+| Signed device lists and endpoint succession chains | Bound callable devices and recognize rotation when the optional policy is enabled. |
+| Scratch-import plus account-signed CRDT operation spans | Reject forged, replayed or invalid message/group updates atomically. |
+| Recipient-signed exact-version receipts | Separate attributable delivery/read claims from unsigned transport ACKs. |
+| Blob reference and relationship checks | Refuse ciphertext that no authorized conversation or account device references. |
+| Link secret, pair-bound proofs and confirmation code | Detect scanners that do not share the in-person QR ceremony. |
 
 ## What is encrypted
 
-- **In transit:** calls, chat, attachments, linking and own-device sync ride iroh's
-  peer-authenticated QUIC with TLS 1.3, including through relays. A relay sees ciphertext and can
-  deny service, but cannot read or forge traffic.
-- **At rest:** the recovery phrase and device key (vault); contacts, grants, call history and the
-  sync document (`account.redb`); chats (`chat.redb`); attachments (random per-file keys).
+- Direct connections, linking and own-device sync use peer-authenticated QUIC/TLS, including when
+  carried by public relays.
+- Vault secrets, account/chat/group/search records and receipt ledgers are sealed at rest.
+- Attachments and compacted history use random per-file keys; only ciphertext enters iroh-blobs.
+- Group posts and group-call audio are protected on each member-to-host connection, but hosts can
+  read what they relay.
 
-## What Tinline does not protect
+## Metadata
 
-- **A compromised or already-unlocked device.** Malware running as the app, or a rooted device
-  while unlocked, can read everything the app can.
-- **A stolen recovery phrase, or a stolen linked device.** There is no revocation. Unlinking
-  stops sync and dialling, but the removed device knew the phrase.
-- **Metadata.** Peers, relays and discovery providers can observe IP addresses and connection
-  timing. Tinline is not anonymous. The account name, DID and device public key are readable in
-  `account.json`, and file names show how many accounts a device holds.
-- **Local plaintext copies.** Viewing or exporting an attachment can leave plaintext copies;
-  encrypted files do not prove older plaintext was erased from flash.
-- **Copies others hold.** Deleting a message or contact does not erase the other person's copy.
-- **Emergencies.** Tinline is not an emergency-calling service, and both devices must be
-  reachable. Only the selected account on a device is online.
+Tinline is not anonymous. Relays and discovery infrastructure can observe endpoint IDs, timing,
+traffic sizes and relay use. Direct peers learn network addresses. Contacts receive signed callable
+endpoint lists and can infer their size.
 
-## Known gaps
+While locked, display name, DID and device public key remain readable for account selection.
+Directory names, record paths, activity days, file sizes and blob hashes also remain visible due to
+storage layout. Notifications, logs and exported plaintext are outside sealed stores.
 
-- No per-grant or device revocation list; removing a contact is a block that syncs to your own
-  devices.
-- Attestations never expire.
-- A contact ticket is a bearer secret until redeemed: whoever scans first wins.
-- No clock-skew tolerance on expiry checks.
-- No application-level media cipher or ratchet beyond TLS 1.3; key-compromise behaviour has not
-  been independently audited.
+## What is not protected
+
+- Malware running as Tinline or a rooted/unlocked device can use data available to the app.
+- A stolen root secret or linked device cannot be strongly revoked with the current identity
+  design.
+- Recipients and group hosts can retain, copy, publish or record content they legitimately see.
+  Remote deletion, read behavior and recording notices are cooperative.
+- There is no forward secrecy for stored databases under their long-lived derived keys.
+- Secure erasure cannot be promised on flash or copy-on-write filesystems.
+- Tinline is not an emergency calling service.
+- A device may remain online while the OS is locked because Android's background service or the
+  Linux tray process continues running.
+
+## Abuse and resource limits
+
+Several boundaries are implemented: pending private handshakes are limited, first authentication
+steps time out, call/contact control frames are capped at 64 KiB, contact requests are capped at
+64 and group-code attempts are rate-limited. Chat, own-device and group protocols currently permit
+frames up to 16 MiB; chat authentication now has a timeout, but a peer can still send a large frame
+before application authentication completes.
+
+A contact-request inbox can be filled with throwaway identities. A blocked former contact can
+keep dialing an address it already knows; endpoint rotation is disabled by default in 0.1.38, so
+there is no automatic expiry for that knowledge. Public relay capacity is not controlled by
+Tinline. These limits reduce accidental or simple resource exhaustion; they do not support a
+denial-of-service-resistance claim.
+
+## Important semantic limits
+
+- Missing receipt evidence proves nothing; a recipient can be offline or withhold it.
+- A valid read receipt is an account installation's signed claim, not proof that a human looked.
+- Group hosts can withhold or reorder delivery but cannot forge signed member records.
+- Removed group members retain old history and receive a bounded grace path for old posts.
+- Display names are not unique identity evidence. Version 0.1.38 has no safety-number verification
+  UI; compare the DID through a separate trusted channel when identity matters.
