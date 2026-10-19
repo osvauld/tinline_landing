@@ -1,0 +1,11 @@
+---
+/* A light/dark picture pair from public/ (e.g. /art/avatars/me → me-light.svg / me-dark.svg). Both images are in the
+   page and CSS shows the one for the current theme (system setting, or the reader's choice from theme.js); lazy
+   loading means the hidden one isn't fetched. */
+const { src, ext = 'svg', alt = '', width, height, class: cls = '', lazy = true } = Astro.props;
+const loading = lazy ? 'lazy' : 'eager';
+---
+<span class={`art ${cls}`}>
+  <img class="on-light" src={`${src}-light.${ext}`} alt={alt} width={width} height={height} loading={loading} decoding="async" />
+  <img class="on-dark" src={`${src}-dark.${ext}`} alt={alt} width={width} height={height} loading={loading} decoding="async" />
+</span>

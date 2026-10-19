@@ -1,62 +1,68 @@
-# Tinline landing site
+# Tinline website
 
-Static, analytics-free Astro site for **https://tinline.osvauld.com**.
-App source: https://github.com/osvauld/tinline
-Site source: https://github.com/osvauld/tinline_landing
+Standalone Astro launch site for **https://tinline.osvauld.com**, with a bundled Svelte design playground. The site builds and runs without the Rust/Android repository.
+
+- App source: https://github.com/osvauld/tinline
+- Site source: https://github.com/osvauld/tinline_landing
 
 ## Develop
 
-Node 24 (see `.nvmrc`):
+Use Node 24 (`.nvmrc`). Install both lockfile-controlled dependency sets:
 
 ```sh
 npm ci
+npm ci --prefix playground
 npm run dev
+```
+
+Open **http://localhost:4321/**. The dev command runs Astro and the playground together, proxying `/play/` through the same origin. Both support live updates. Override the site address with `npm run dev -- --host 0.0.0.0 --port 4322`.
+
+The homepage embeds one clickable design preview with a Mobile / Desktop switch. `/play/` also opens directly. People, conversations and receipt states in the preview are synthetic; it is not a running Tinline client. Website previews are silent.
+
+## Build and check
+
+```sh
 npm run build
+npm run check
 npm run preview
 ```
 
-Routes: `/` (pre-release homepage), `/privacy` (app + website policy), `/security`
-(threat model/reporting). No analytics, external fonts or client-side scripts.
-No download links are invented while Android testing is pending.
+`build` produces the Astro pages and then the playground at `dist/play/`. `check` type-checks the playground and verifies every generated site/docs page uses external CSS/scripts and the production CSP. A Vite large-chunk advisory is currently expected; it is not a failed build.
 
-Colors follow the Android app's `LightTin`/`DarkTin` tokens and the OS color preference.
-Figtree and IBM Plex Mono are self-hosted with their OFL license notices in `public/fonts`.
-Production CSS must remain external (`build.inlineStylesheets: 'never'`): the Netlify CSP
-intentionally blocks inline styles. Run `node scripts/check-build.mjs` after building to
-check this constraint; CI runs the same check.
+On the shared development machine, follow the active task-manager admission rules for builds/checks. To keep isolated local build artifacts on the cache disk, Astro's `cacheDir` and `outDir` must be on the **same filesystem**: Astro renames prerender assets between them. Do not move or delete outputs used by another session.
 
-## Netlify continuous deployment
+## Content and assets
 
-1. In Netlify: **Add new project → Import an existing project → GitHub**.
-2. Authorize access to `osvauld/tinline_landing` and select it.
-3. Production branch: `main`; base directory: root. Build command: `npm run build`;
-   publish directory: `dist`. `netlify.toml` configures Node 24 and security headers.
-4. Deploy and check the generated `*.netlify.app` site, including `/privacy`.
-5. Domain management: add **tinline.osvauld.com** as the production custom domain.
-6. In the DNS provider for `osvauld.com`, add the record Netlify instructs you to use:
-   normally a **CNAME**, name **tinline**, target **YOUR-SITE.netlify.app**.
-   Use the actual assigned hostname, not that placeholder. Do not alter root/MX/NS records.
-7. Wait for DNS validation and Netlify's HTTPS certificate. Set the subdomain as the
-   primary domain and verify HTTPS redirect, canonical URLs, and security headers.
-8. Subsequent pushes to `main` trigger production builds; pull requests can create
-   deploy previews. GitHub Actions additionally checks the build.
+- `/`: app-first alpha landing page and GitHub download link.
+- `/whitepaper`: `src/content/whitepaper.md`, an exact snapshot of app commit `26623f72` (18 October 2026).
+- `/security` and `/privacy`: site-owned public policies and explanations.
+- `/docs/*`: the preserved technical documentation, one Markdown file per page in `src/content/docs/`, ordered by frontmatter `order`.
+- `/blog/*`: retained article drafts, not promoted on the homepage.
+- `/play/`: standalone design playground in `playground/`.
 
-Public NS lookup during setup returned `ns47.domaincontrol.com` and
-`ns48.domaincontrol.com` (GoDaddy DNS). Confirm in the owner's account; no DNS was changed.
-Netlify's automatic dependency install should use the committed npm lockfile.
+The unfinished technical docs were retained during the launch-site replacement. They are visibly labelled older drafts and excluded from search indexing; the whitepaper is the newer implementation snapshot. Content snapshots do **not** synchronize automatically with the app repository; review implementation/status claims before publishing updates.
 
-## Before publishing the app
+Colors, icons, identity patterns and tick geometry are bundled here. To regenerate static art from local exports:
 
-- Review the policy in `src/content/privacy.md` against the exact Android release.
-  It is derived from the app repo's `docs/play/privacy.md`, with public-facing wording
-  and a website/hosting section. These copies do not synchronize automatically.
-- Confirm developer identity, contact address, intended audience and metadata disclosures.
-- Publish owner-approved Tinline-specific terms at `/terms`: the app currently links there,
-  but this scaffold deliberately does not invent legal terms or copy the parent product's
-  MIT terms (Tinline uses GPL-3.0-or-later).
-- Verify live `https://tinline.osvauld.com/privacy` before entering it in Play Console.
-- When testing is available, add only real Play testing/download URLs and approved screenshots.
-- This site scaffolding does not resolve the app's security/release blockers.
+```sh
+node scripts/art.mts
+```
 
-Do not commit hosting tokens, DNS credentials or app signing keys. Remote hosting and DNS
-configuration are account-level steps, not performed by this repository.
+To refresh tick geometry from a newer app export, explicitly supply that file, then regenerate the art. Ordinary builds do not need it:
+
+```sh
+node scripts/import-ticks.mjs /path/to/tin-icons/generated/tin_ticks.rs
+node scripts/art.mts
+```
+
+Legacy app/playground design QA scripts that require another checkout were not imported. The standalone checks above are the supported validation entry points; the app repository retains its broader design flow suite.
+
+## Deployment
+
+Netlify imports `osvauld/tinline_landing`, production branch `main`, repository root as base, `dist` as publish directory. `netlify.toml` installs the playground dependencies, runs the combined build and runs `npm run check` before accepting it; Netlify installs the root npm dependencies automatically. GitHub Actions installs both sets, type-checks the playground, builds, checks production policies and rejects known analytics references.
+
+Keep production CSS external (`build.inlineStylesheets: 'never'`). Pages carry their own CSP; the playground has a separate policy for generated bubble styles. Development-only inline/HMR allowances are not included in production. Fonts and art are self-hosted. No analytics or third-party scripts are included.
+
+See [DEPLOY.md](DEPLOY.md) for the snapshot provenance, owner confirmations and post-deployment checklist. In particular, the published GitHub app release must be checked against the implementation version described by the paper.
+
+Contact: **abe@osvauld.com**. Do not commit hosting credentials or signing keys. Updating this checkout is not a deployment: publishing, pushes and account-level hosting/DNS changes need explicit approval. Do not invent release URLs or legal terms; the app's `/terms` link still needs owner-approved terms before an unrestricted release.

@@ -1,0 +1,39 @@
+---
+import Phone from './Phone.astro';
+const { id, route, title } = Astro.props;
+---
+<div class="device-preview">
+  <fieldset class="preview-switch">
+    <legend class="vh">{title} preview layout</legend>
+    <label><input type="radio" name={`form-${id}`} value="mobile" checked />Mobile</label>
+    <label><input type="radio" name={`form-${id}`} value="desktop" />Desktop</label>
+  </fieldset>
+  <div class="preview-stage">
+    <div class="preview-mobile"><Phone route={route} title={`${title}: mobile design preview`} /></div>
+    <div class="preview-desktop"><Phone form="desktop" route={route} title={`${title}: desktop design preview`} /></div>
+  </div>
+</div>
+<script>
+  function sizePreviews() {
+    document.querySelectorAll<HTMLElement>('.device-preview').forEach((preview) => {
+      if (preview.dataset.sized) return;
+      preview.dataset.sized = 'true';
+      const stage = preview.querySelector<HTMLElement>('.preview-stage')!;
+      const resize = () => {
+        const width = stage.clientWidth - 20;
+        preview.querySelectorAll<HTMLElement>('.device-frame').forEach((frame) => {
+          const nativeWidth = frame.classList.contains('computer') ? 1280 : 390;
+          frame.style.setProperty('--k', String(Math.max(0.1, Math.min(1, width / nativeWidth, (stage.clientHeight - 20) / 800))));
+        });
+      };
+      let pending = 0;
+      new ResizeObserver(() => {
+        cancelAnimationFrame(pending);
+        pending = requestAnimationFrame(resize);
+      }).observe(stage);
+      resize();
+    });
+  }
+  sizePreviews();
+  document.addEventListener('astro:page-load', sizePreviews);
+</script>

@@ -1,0 +1,5 @@
+---
+import Art from './Art.astro';
+const { name, size = 28 } = Astro.props;
+---
+<Art src={`/art/icons/${name}`} width={size} height={size} class="icon" />

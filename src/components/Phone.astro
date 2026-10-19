@@ -1,0 +1,14 @@
+---
+/* A clickable design preview (not the shipped app): the design playground inside a device frame, opened at one screen (`route` is the playground's
+   hash route, e.g. /chat/dinesh, /calls, /me). Built into /play/ by `npm run build:play`. The app always renders at its
+   true size (phone 390×800, computer 1280×800) and the frame scales it down (--k, set per size in site.css), so a small
+   frame shows the same layout, just smaller. Each frame is its own copy of the demo, and follows the site's theme. */
+const { route, title, form = 'android', size = '', eager = false } = Astro.props;
+const [w, h] = form === 'desktop' ? [1280, 800] : [390, 800];
+---
+<figure class={`device-frame ${form === 'desktop' ? 'computer' : 'phone'} ${size}`}>
+  <div class="viewport">
+    <iframe src={`/play/?embed&form=${form}#${route}`} title={title} loading={eager ? 'eager' : 'lazy'} width={w} height={h}></iframe>
+  </div>
+  <figcaption class="vh">{title}</figcaption>
+</figure>

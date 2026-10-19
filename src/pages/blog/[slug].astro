@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts, readingTime, longDate, type Post } from '../../lib/posts';
+
+export function getStaticPaths() {
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+const { post } = Astro.props as { post: Post };
+const { Content, meta } = post;
+---
+<Layout title={`${meta.title} · Tinline`} description={meta.summary} noindex={meta.draft}>
+  <main id="main" class="shell prose-page">
+    <article>
+      <p class="post-meta">{meta.draft && <span class="draft">Draft</span>}<span>{longDate(meta.date)}</span><span aria-hidden="true">·</span><span>{readingTime(post.words)}</span></p>
+      <h1 class="page-title">{meta.title}</h1>
+      {meta.summary && <p class="lead">{meta.summary}</p>}
+      <div class="prose"><Content /></div>
+    </article>
+    <p class="back"><a href="/blog">← All posts</a></p>
+  </main>
+</Layout>

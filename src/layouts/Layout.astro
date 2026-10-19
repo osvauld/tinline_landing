@@ -1,14 +1,27 @@
 ---
+// The app's design tokens (colours, radii, depth), straight from the playground: one source of truth.
+import '../../playground/src/tokens.css';
 import '../styles/site.css';
-const { title, description = 'Tinline from Osvauld. Peer-to-peer calls, one-to-one chat, files and voice messages. No phone number, no ads, no app analytics.' } = Astro.props;
+import '../styles/docs.css';
+import Art from '../components/Art.astro';
+const { title, description = 'Tinline, from Osvauld: a personal line for messages, calls and files, straight from your device to the people you choose. No phone number, no ads, no tracking.', noindex = false } = Astro.props;
+// Vite injects styles and Astro injects dev scripts; hot reload also uses WebSockets.
+// These development allowances must not appear in the production build.
+const connectPolicy = import.meta.env.DEV ? "connect-src 'self' ws: wss:; " : '';
+const inlinePolicy = import.meta.env.DEV ? " 'unsafe-inline'" : '';
+const contentPolicy = `default-src 'none'; ${connectPolicy}script-src 'self'${inlinePolicy}; style-src 'self'${inlinePolicy}; img-src 'self'; font-src 'self'; frame-src 'self'; base-uri 'none'; form-action 'none'`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const here = (path: string) => (Astro.url.pathname.replace(/\/$/, '') || '/') === path || Astro.url.pathname.startsWith(path + '/') ? 'page' : undefined;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- The page policy lives here (netlify.toml only adds framing rules), so /play/ can carry its own. -->
+    <meta http-equiv="Content-Security-Policy" content={contentPolicy} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#f5f6f3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f1513" media="(prefers-color-scheme: dark)" />
     <link rel="canonical" href={canonical} />
@@ -18,17 +31,28 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <title>{title}</title>
+    <script is:inline src="/theme.js"></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="shell nav">
-      <a class="brand" href="/" aria-label="Tinline by Osvauld — home">
-        <img class="brand-logo" src="/logo.svg" alt="" width="52" height="52" />
-        <span class="brand-wordmark">tinline<span class="brand-byline">by Osvauld</span></span>
+      <a class="brand" href="/" aria-label="Tinline by Osvauld, home">
+        <img class="brand-logo" src="/logo.svg" alt="" width="44" height="44" />
+        <span class="brand-wordmark">Tinline<span class="brand-byline">by Osvauld</span></span>
       </a>
-      <nav aria-label="Main navigation"><a href="/privacy">Privacy</a><a href="/security">Security</a><a href="https://github.com/osvauld/tinline">Source ↗</a></nav>
+      <nav aria-label="Main navigation">
+        <a href="https://github.com/osvauld/tinline/releases">Download ↗</a>
+        <a href="/whitepaper" aria-current={here('/whitepaper')}>Whitepaper</a>
+        <a href="/docs" aria-current={here('/docs')}>Docs (draft)</a>
+        <a href="/security" aria-current={here('/security')}>Security</a>
+        <a href="https://github.com/osvauld/tinline">Source ↗</a>
+        <button id="theme" class="theme" type="button" hidden aria-label="Switch light or dark mode"><Art src="/art/icons/moon" width={20} height={20} class="when-light" lazy={false} /><Art src="/art/icons/sun" width={20} height={20} class="when-dark" lazy={false} /></button>
+      </nav>
     </header>
     <slot />
-    <footer class="shell footer"><a href="https://osvauld.com">An Osvauld product ↗</a><div><a href="/privacy">Privacy</a><a href="/security">Security</a><a href="mailto:osvauld@gmail.com">Contact</a></div></footer>
+    <footer class="shell footer">
+      <a href="https://osvauld.com">Made by Osvauld ↗</a>
+      <div><a href="/whitepaper">Whitepaper</a><a href="/docs">Docs (draft)</a><a href="/privacy">Privacy</a><a href="/security">Security</a><a href="mailto:abe@osvauld.com">abe@osvauld.com</a></div>
+    </footer>
   </body>
 </html>

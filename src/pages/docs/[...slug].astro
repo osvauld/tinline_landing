@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { docs } from '../../content/docs';
+
+export function getStaticPaths() {
+  return docs.map((doc, i) => ({
+    params: { slug: doc.slug || undefined },
+    props: { doc, prev: docs[i - 1], next: docs[i + 1] },
+  }));
+}
+
+const { doc, prev, next } = Astro.props;
+const { Content } = doc;
+const href = (slug: string) => (slug ? `/docs/${slug}` : '/docs');
+---
+<Layout title={`${doc.title} — Tinline docs (draft)`} description={doc.description} noindex>
+  <div class="shell docs">
+    <nav class="docs-nav" aria-label="Documentation">
+      <p class="eyebrow">DOCUMENTATION · OLDER DRAFT</p>
+      <ul>
+        {docs.map(d => (
+          <li><a href={href(d.slug)} aria-current={d.slug === doc.slug ? 'page' : undefined}>{d.title}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <main id="main" class="docs-body">
+      <aside class="note" aria-label="Documentation status">
+        <p>These technical notes are an older draft and have not been updated for the current alpha. Some protocol and feature descriptions are out of date. Read the <a href="/whitepaper">18 October 2026 whitepaper</a> for the newer implementation snapshot.</p>
+      </aside>
+      <Content />
+      <nav class="docs-pager" aria-label="Previous and next page">
+        {prev ? <a href={href(prev.slug)}><span>Previous</span>{prev.title}</a> : <span />}
+        {next && <a class="next" href={href(next.slug)}><span>Next</span>{next.title}</a>}
+      </nav>
+      <p class="docs-source">Found something wrong? <a href="https://github.com/osvauld/tinline_landing/issues">Report it on GitHub ↗</a></p>
+    </main>
+  </div>
+</Layout>

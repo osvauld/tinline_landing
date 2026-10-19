@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { posts, readingTime, longDate } from '../../lib/posts';
+---
+<Layout title="Blog · Tinline" description="Notes from Osvauld on Tinline and sovereign software.">
+  <main id="main" class="shell prose-page">
+    <p class="eyebrow">BLOG</p>
+    <h1 class="page-title">Notes on the line.</h1>
+    <p class="lead">What we're learning while building Tinline, and the thinking behind it.</p>
+    {posts.length === 0 && <p class="muted">The first post is on its way.</p>}
+    <ul class="post-list">
+      {posts.map((p) => (
+        <li>
+          <a href={`/blog/${p.slug}`}>
+            <p class="post-meta">{p.meta.draft && <span class="draft">Draft</span>}<span>{longDate(p.meta.date)}</span><span aria-hidden="true">·</span><span>{readingTime(p.words)}</span></p>
+            <h2>{p.meta.title}</h2>
+            {p.meta.summary && <p>{p.meta.summary}</p>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+</Layout>

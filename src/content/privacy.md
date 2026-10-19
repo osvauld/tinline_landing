@@ -1,8 +1,8 @@
 # Tinline privacy policy
 
-_Last updated: 8 October 2026_
+_Last updated: 19 October 2026_
 
-Tinline is a calling and one-to-one messaging app made by Osvauld ("we"). It connects your
+Tinline is a calling and messaging app for contacts and groups, made by Osvauld ("we"). It connects your
 device to the devices of your contacts. This policy explains what that means for your data.
 We do not receive a copy of your contacts, messages, attachments or call content, and the app contains no ads,
 analytics or tracking SDKs. Network metadata is processed by peers and third-party infrastructure
@@ -14,11 +14,12 @@ as explained below.
   and device secret key are stored in an encrypted vault. An optional passphrase protects the
   vault key using Argon2id. Android remembers the vault key using Android Keystore so calls can
   work in the background; hardware protection depends on the device. Desktop uses the system
-  keyring when no passphrase is set, but currently falls back to a private plaintext key file
-  if the keyring is unavailable. Someone who copies that file and the vault can read the secrets.
-- **Your name, contacts, call history and settings.** These are local files, not encrypted by
-  Tinline's vault. Your operating system's app sandbox, permissions and device encryption
-  provide their protection. We do not receive a copy.
+  keyring when no passphrase is set; a desktop without a secure keyring requires a passphrase.
+- **Your contacts, call history, settings and conversations.** Account state, chats, groups and
+  search indexes are held in encrypted stores with keys derived from your root secret. Your
+  display name, public account/device identifiers, directory and record paths, file sizes and
+  some activity metadata remain readable. Your operating system's app sandbox, permissions and
+  device encryption provide additional protection. We do not receive a copy.
 - **Your recovery phrase.** It is stored inside the encrypted vault and can be shown again in
   Settings. Anyone who has it can restore your identity, so keep it private.
 
@@ -30,19 +31,22 @@ it with can read those fields and try to redeem it.
 
 ## Calls
 
-- Calls are end-to-end encrypted between the two devices. Nobody in between, including us, can hear
-  them.
+- One-to-one calls use authenticated, encrypted connections between the two devices; relays
+  cannot decrypt the content. Group calls are forwarded by a member's host device, which can
+  hear the audio it forwards. Other participants, and a group host, can record a call without
+  telling you.
 - Tinline tries to connect the two devices directly. When a direct connection is not possible
   (for example behind some routers or mobile networks), the encrypted call is passed through a
   **relay server**. Today Tinline uses the public relays run by number 0, Inc. (the makers of the
   open-source iroh networking library). A relay can see the IP addresses of the two devices, a
-  per-install device identifier, and the timing and amount of encrypted traffic. It cannot
+  current endpoint identifier, and the timing and amount of encrypted traffic. It cannot
   decrypt call content, but this metadata can allow correlation of devices and connections.
   Direct connections also reveal network addresses to the other device; Tinline is not an
   anonymity service.
 - To let your contacts find your device, Tinline publishes your device identifier with its current
-  relay address and network addresses to a discovery service, also run by number 0, Inc. This
-  record contains no name, phone number or contact list.
+  relay address to a discovery service, also run by number 0, Inc. This record does not publish
+  the device's IP address, name, phone number or contact list; peers and relays still learn
+  network addresses when they connect.
 
 ## Messages and attachments
 
@@ -52,8 +56,13 @@ it with can read those fields and try to redeem it.
   paths and structural metadata are not hidden. Stored attachment blobs are encrypted with
   separate random keys; those keys are kept in encrypted chat records.
 - Messages wait locally when a contact is offline and synchronize when both devices are
-  online together. A delivered indicator means the other device acknowledged the message,
-  not that the person read it.
+  online together. Group posts are stored and relayed by member-hosted devices; a host can
+  read the group content it carries. Group members hold copies of the history.
+- Devices exchange signed delivered and read receipts naming exact message or post versions.
+  The apps display those statements and their signer/device provenance. Read receipts are on
+  by default and can be turned off per account; delivered receipts still go out, and reads
+  made while off are not confirmed later. These statements describe device confirmation,
+  not proof of a person's attention.
 - Showing, playing, recording, saving or sharing media can create unencrypted local copies
   in app-private caches or in a destination you select. Files exported to Downloads, a photo
   library or another app are outside the encrypted blob store. Operating-system permissions
@@ -68,8 +77,8 @@ it with can read those fields and try to redeem it.
 - **Files and photos you select:** to attach them to a conversation or save received files.
 - **Notifications and full-screen notifications:** for incoming messages and calls; incoming
   calls can ring over the lock screen.
-- **Run in the background, start at boot, ignore battery optimisation:** so the app can keep
-  its connection open and receive calls and messages when it is not on screen.
+- **Run in the background, start at boot, ignore battery optimisation:** so Tinline can stay
+  reachable and receive calls and messages when it is not on screen.
 
 ## What we do not do
 
@@ -106,4 +115,4 @@ to respond. Third-party sites linked from this page have their own privacy pract
 
 ## Contact
 
-Osvauld — osvauld@gmail.com — https://tinline.osvauld.com
+Osvauld — abe@osvauld.com — https://tinline.osvauld.com

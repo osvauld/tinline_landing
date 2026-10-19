@@ -1,0 +1,204 @@
+/* The one data set. Merged from refined/home.html, chat.html and groups.html, which had drifted
+   (different spellings, times, unread counts, member counts). Every screen reads this through the store. */
+import type { Account, Chat, Device, Group, Message, OtherName, Person, Profile } from './types';
+import { clock, T } from './clock.svelte';
+
+const at = (h: number, m: number, daysAgo = 0) => {
+  const d = new Date(clock.ago(0));
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(h, m, 0, 0);
+  return d.getTime();
+};
+
+let seq = 0;
+const msg = (m: Omit<Message, 'id'>): Message => ({ id: 'm' + ++seq, ...m });
+
+/** Profiles as last synced. `sample:<seed>` pictures are drawn on first use (no files, no network). */
+const prof = (fields: Record<string, unknown>, picture?: { hash: string; ready: boolean }): Profile => ({ fields: { availability: { available: true }, ...fields }, ...(picture ? { picture } : {}) });
+const pic = (seed: string, ready = true) => ({ hash: 'sample:' + seed, ready });
+
+export function seedAccount(): Account {
+  return {
+    id: 'me', name: 'Monica', hue: 0, availability: 'available', gate: 'ready',
+    profile: prof({ status: 'Slow mornings, fast evenings', about: 'Designing calm software. Ask me about trains.', pronouns: 'she/her', availability: { available: true } }),
+  };
+}
+
+export function seedPeople(): Person[] {
+  const p = (id: string, name: string, hue: number, extra: Partial<Person> = {}): Person =>
+    ({ id, name, hue, online: true, callsAllowed: true, blocked: false, contact: true, ...extra });
+  return [
+    p('dinesh', 'Dinesh', 5, { profile: prof({ status: 'Working from the café', about: 'Architect by day, cyclist at weekends. Happiest with a sketchbook and a long ride.', pronouns: 'he/him', location: 'Palo Alto', website: 'https://dinesh.example/notes' }, pic('dinesh-1')) }),
+    p('bighead', 'Big Head', 4, { online: false, profile: prof({ status: 'Back online on Thursday', about: 'Teaches maths. Collects maps.', location: 'Bengaluru', availability: { available: false, until: at(18, 0) } }, pic('bighead-1')) }),
+    p('erlich', 'Erlich', 1, { callsAllowed: false, profile: prof({ status: 'Thursday lunch?' }) }), // met through a group request: message-only until he allows calls
+    p('richard', 'Richard', 1, { profile: prof({ status: 'Draft review this week', about: 'Editor. Reads on trains.' }, pic('richard-light', true)) }),
+    p('jared', 'Jared', 3, { profile: prof({ status: 'Kitchen at 7', location: 'Palo Alto' }, pic('jared-1', false)) }),
+    p('laurie', 'Laurie', 2, { profile: prof({
+      status: 'Studio day', about: 'Interiors and a lot of tea.', pronouns: 'she/her',
+      // A key this version has never heard of, with nested data: it must be shown readably and survive edits.
+      work: { title: 'Interior architect', studio: { name: 'The corner room', city: 'Palo Alto' }, tools: ['Rhino', 'Figma', 'Pencil'] },
+    }, pic('laurie-1')) }),
+    p('carla', 'Carla', 0, { contact: false }),
+    p('gavin', 'Gavin', 2, { contact: false, profile: prof({ status: 'First week!', about: 'New to the house. Bringing biscuits.' }) }),
+    p('russ', 'Russ', 4, { contact: false }),
+    p('amma', 'Amma', 3, { profile: prof({ status: 'Call me after 6' }) }),
+    p('peter', 'Peter', 0, { blocked: true, profile: prof({ status: 'Hello there' }, pic('peter-1')) }),
+  ];
+}
+
+export function seedChats(): Chat[] {
+  const direct = (person: string, messages: Message[], extra: Partial<Chat> = {}): Chat =>
+    ({ kind: 'direct', id: person, person, messages, unread: 0, muted: false, draft: '', ...extra } as Chat);
+
+  const hike: Group = {
+    kind: 'group', id: 'hike', name: 'Hacker Hostel', status: 'active', unread: 3, muted: false, draft: '',
+    members: [
+      { id: 'bighead', role: 'owner', host: false, callHost: false, since: at(9, 0, 59) },
+      { id: 'dinesh', role: 'member', host: true, callHost: true, since: at(9, 0, 59) },
+      { id: 'jared', role: 'admin', host: false, callHost: false, since: at(9, 0, 59) },
+      { id: 'me', role: 'admin', host: false, callHost: false, since: at(9, 0, 53) },
+      { id: 'laurie', role: 'admin', host: false, callHost: false, since: at(9, 0, 52) },
+      { id: 'carla', role: 'member', host: false, callHost: false, since: at(9, 0, 40), invitedBy: 'jared' },
+      { id: 'erlich', role: 'member', host: false, callHost: false, since: at(9, 0, 37), invitedBy: 'jared' },
+      { id: 'gavin', role: 'member', host: false, callHost: false, since: at(9, 0, 3), invitedBy: 'laurie' },
+      { id: 'russ', role: 'member', host: false, callHost: false, since: at(9, 0, 0), invitedBy: 'laurie' },
+    ],
+    invited: [], flags: { carla: ['jared'] },
+    messages: [
+      // Older posts (additive, for search): earlier days, before the join line below.
+      msg({ from: 'jared', at: at(18, 0, 8), text: 'House rules and the Wi-Fi details are in the shared folder.' }),
+      msg({ from: 'laurie', at: at(9, 30, 5), text: 'Anyone have a spare charger for Saturday? Mine died last time.' }),
+      msg({ from: 'jared', at: at(20, 10, 3), text: '', call: { kind: 'voice', outcome: 'answered', durationS: 1140, direction: 'in', group: true, people: 4 } }),
+      msg({ from: 'laurie', at: at(19, 5, 2), text: '', call: { kind: 'voice', outcome: 'missed', durationS: 300, direction: 'in', group: true, people: 3 } }),
+      msg({ from: 'gavin', at: at(9, 2), text: 'Gavin joined, invited by Laurie', system: true }),
+      msg({ from: 'jared', at: at(12, 30), text: 'Saturday 7am, breakfast in the kitchen.' }),
+      msg({ from: 'jared', at: at(12, 31), text: 'Bring your own mug, the dishwasher is broken again.' }),
+      msg({ from: 'jared', at: at(12, 31), text: 'And snacks for the shared shelf.' }),
+      msg({ from: 'me', at: at(12, 33), text: 'I can bring the kettle.', delivery: 'delivered' }),
+      msg({ from: 'laurie', at: at(12, 38), text: 'Can someone give me a lift from the station?' }),
+      msg({ from: 'gavin', at: at(12, 52), text: 'First week with you all. Is the quiet room fine for calls?' }),
+      msg({ from: 'jared', at: at(12, 55), text: 'It is. Quiet after nine, one loud fan by the window.' }),
+    ],
+  };
+
+  const family: Group = {
+    kind: 'group', id: 'family', name: 'Family', status: 'active', unread: 4, muted: true, draft: '',
+    members: [
+      { id: 'me', role: 'owner', host: true, callHost: true, since: at(10, 0, 280) },
+      { id: 'amma', role: 'admin', host: false, callHost: false, since: at(10, 0, 280) },
+      { id: 'bighead', role: 'member', host: false, callHost: false, since: at(10, 0, 280) },
+      { id: 'dinesh', role: 'member', host: false, callHost: false, since: at(10, 0, 279) },
+      { id: 'laurie', role: 'member', host: false, callHost: false, since: at(10, 0, 274) },
+    ],
+    invited: [], flags: {},
+    messages: [
+      msg({ from: 'amma', at: at(20, 5, 10), text: 'Lunch at the café on Sunday? Everyone is coming.' }),
+      msg({ from: 'amma', at: at(8, 30, 2), text: 'ഊണ് കഴിച്ചോ? വൈകിയാൽ വിളിക്കണം.' }),
+      msg({ from: 'bighead', at: at(8, 30, 3), text: 'Saturday plans: grandma’s birthday lunch, all of us.' }),
+      msg({ from: 'me', at: at(18, 5, 1), text: 'Photos from Sunday', delivery: 'delivered' }),
+      msg({ from: 'amma', at: at(19, 40, 1), text: 'So nice! Everyone looks happy' }),
+      msg({ from: 'bighead', at: at(20, 2, 1), text: 'Send the one by the lake please' }),
+      msg({ from: 'amma', at: at(21, 10, 1), text: 'Lunch is at 1 on Sunday' }),
+    ],
+  };
+
+  const book: Group = {
+    kind: 'group', id: 'book', name: 'Book club', status: 'removed', unread: 0, muted: false, draft: '',
+    members: [], invited: [], flags: { me: ['jared', 'bighead', 'laurie'] }, flagAt: { me: [at(9, 0, 17), at(9, 40, 16), at(14, 2, 14)] },
+    messages: [
+      msg({ from: 'jared', at: at(20, 0, 16), text: 'Chapter 6 for next week.' }),
+      msg({ from: 'me', at: at(20, 30, 15), text: 'I’ll bring snacks', delivery: 'delivered' }),
+      msg({ from: 'jared', at: at(14, 2, 14), text: 'You were removed from the group', system: true }),
+    ],
+  };
+
+  const after6 = msg({ from: 'me', at: at(12, 38), text: 'Yes, after 6 works for me', delivery: 'delivered', edited: true });
+  return [
+    direct('dinesh', [
+      // Older messages (additive, for search).
+      msg({ from: 'dinesh', at: at(19, 2, 9), text: 'The flat on Marine Drive is still available.' }),
+      msg({ from: 'me', at: at(19, 10, 9), text: 'Can we see it on Saturday?', delivery: 'delivered' }),
+      msg({ from: 'dinesh', at: at(11, 20, 6), text: 'Booked the café near the station for lunch. Their coffee is excellent.' }),
+      msg({ from: 'me', at: at(11, 25, 6), text: 'Perfect, I’ll bring the lease papers', delivery: 'delivered' }),
+      msg({ from: 'dinesh', at: at(17, 45, 4), text: 'The landlord wants the deposit by Friday.' }),
+      // Photos (chat/5 sizes): one with a caption, one not downloaded yet (its preview shows), one of mine.
+      msg({ from: 'dinesh', at: at(17, 47, 4), text: 'The view from the balcony', file: { name: 'balcony.jpg', size: 2.1e6, kind: 'image', progress: 1, state: 'done', w: 4032, h: 3024 } }),
+      msg({ from: 'dinesh', at: at(17, 48, 4), text: '', file: { name: 'kitchen.jpg', size: 3.2e6, kind: 'image', progress: 1, state: 'done', w: 3024, h: 4032, remote: true } }),
+      msg({ from: 'me', at: at(17, 52, 4), text: '', delivery: 'delivered', file: { name: 'sketch.png', size: 6.4e5, kind: 'image', progress: 1, state: 'done', w: 1080, h: 1080 } }),
+      msg({ from: 'dinesh', at: at(21, 12, 1), text: 'Did you get home ok?' }),
+      msg({ from: 'me', at: at(21, 14, 1), text: 'Yes, train was on time for once', delivery: 'delivered' }),
+      msg({ from: 'me', at: at(21, 15, 1), text: 'Thanks for dinner. That place was great', delivery: 'delivered' }),
+      msg({ from: 'dinesh', at: at(21, 20, 1), text: 'Anytime 🙂' }),
+      msg({ from: 'me', at: at(21, 32, 1), text: '', call: { kind: 'voice', outcome: 'answered', durationS: 742, direction: 'out' } }),
+      msg({ from: 'dinesh', at: at(12, 36), text: 'Are we still on for the call about the flat?' }),
+      after6,
+      msg({ from: 'me', at: at(12, 39), text: 'I’ll call from the office, it’s quieter there', delivery: 'delivered' }),
+      msg({ from: 'dinesh', at: at(12, 41), text: 'I have the landlord’s numbers now', replyTo: after6.id }),
+    ], { unread: 2 }),
+    hike,
+    direct('erlich', [
+      msg({ from: 'erlich', at: at(14, 0, 7), text: 'Lunch last Thursday was fun, same place again sometime?' }),
+      msg({ from: 'me', at: at(11, 2), text: 'Free this week?', delivery: 'delivered' }),
+      msg({ from: 'erlich', at: at(11, 5), text: 'Thursday works. The place near the station?' }),
+    ], { draft: 'Lunch Thursday?' }),
+    direct('richard', [
+      msg({ from: 'richard', at: at(10, 12, 11), text: '明日の会議は十時です。資料を送ります。' }),
+      msg({ from: 'richard', at: at(10, 14, 11), text: 'Meeting notes attached, the draft review is on Friday.' }),
+      msg({ from: 'richard', at: at(8, 20), text: 'Sent the draft to your laptop too' }),
+      msg({ from: 'richard', at: at(9, 2), text: '', call: { kind: 'voice', outcome: 'missed', durationS: 0, direction: 'in' } }),
+    ], { unread: 1 }),
+    family,
+    direct('bighead', [
+      msg({ from: 'bighead', at: at(10, 15, 12), text: 'Which station do you use for the Bengaluru trip?' }),
+      msg({ from: 'me', at: at(10, 20, 12), text: 'Whichever has the earlier train', delivery: 'delivered' }),
+      msg({ from: 'bighead', at: at(17, 40, 1), text: 'Can you send the scan when you’re back online?' }),
+      msg({ from: 'me', at: at(17, 46, 1), text: 'Running 10 minutes late, sorry', delivery: 'waiting' }),
+      msg({ from: 'me', at: at(17, 50, 1), text: '', call: { kind: 'voice', outcome: 'failed', durationS: 0, direction: 'out' } }),
+    ]),
+    book,
+  ];
+}
+
+export function seedDevices(): Device[] {
+  return [
+    { id: 'pixel', name: 'Spare phone', kind: 'phone', self: true, lastSeen: clock.ago(0) },
+    { id: 'laptop', name: 'Work laptop', kind: 'desktop', self: false, lastSeen: clock.ago(3 * T.HOUR) },
+  ];
+}
+
+/** Sample other names for the "names on this device" screens (Simulation drawer). Their ids never collide with the
+    open name's, so a call to "Studio" can be told apart. A name has its own contacts and chats; devices are shared. */
+export function seedOtherName(which: 'studio' | 'home'): OtherName {
+  const p = (id: string, name: string, hue: number, extra: Partial<Person> = {}): Person =>
+    ({ id, name, hue, online: true, callsAllowed: true, blocked: false, contact: true, ...extra });
+  const direct = (person: string, messages: Message[], unread = 0): Chat =>
+    ({ kind: 'direct', id: person, person, messages, unread, muted: false, draft: '' } as Chat);
+  if (which === 'studio') {
+    return {
+      id: 'name-studio', name: 'Studio', hue: 4, online: true, remembered: false,
+      profile: prof({ status: 'Client work, weekdays' }),
+      data: {
+        people: [
+          p('st-ron', 'Ron', 2, { profile: prof({ status: 'Reviewing the drawings' }) }),
+          p('st-rahul', 'Rahul (print shop)', 5, { online: false }),
+        ],
+        chats: [
+          direct('st-ron', [
+            msg({ from: 'st-ron', at: at(10, 12), text: 'Got the new plans, thank you' }),
+            msg({ from: 'st-ron', at: at(10, 14), text: 'Can we talk through the kitchen at four?' }),
+          ], 2),
+          direct('st-rahul', [msg({ from: 'me', at: at(9, 2, 1), text: 'Twenty copies on the heavy paper, please', delivery: 'delivered' })]),
+        ],
+        devices: seedDevices(),
+      },
+    };
+  }
+  return {
+    id: 'name-home', name: 'Home', hue: 1, online: true, remembered: true,
+    data: {
+      people: [p('hm-amma', 'Amma', 3)],
+      chats: [direct('hm-amma', [msg({ from: 'hm-amma', at: at(8, 30), text: 'Did you eat?' })], 1)],
+      devices: seedDevices(),
+    },
+  };
+}

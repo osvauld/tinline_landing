@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+// A site-owned snapshot: the build does not require the app repository.
+import { Content } from '../content/whitepaper.md';
+---
+<Layout title="Whitepaper · Tinline" description="How Tinline works: identity, transport, signed conversations, groups, calls, receipts, storage and limits. Each part is marked shipped, designed or not built.">
+  <main id="main" class="shell prose-page wide">
+    <p class="eyebrow">WHITEPAPER · DRAFT</p>
+    <aside class="note">
+      <p>Tinline is a demonstration from Osvauld of sovereign software: a personal communication app that runs in the background on your own devices, with nobody in between. This paper describes how it works, and marks each part as shipped, designed or not built yet.</p>
+    </aside>
+    <div class="prose"><Content /></div>
+  </main>
+</Layout>
