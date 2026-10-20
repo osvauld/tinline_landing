@@ -21,6 +21,13 @@
 .docs-body th { color: var(--ink); font-weight: 650; border-bottom-color: var(--muted); }
 .docs-body td { color: var(--muted); }
 .docs-body td:first-child { color: var(--ink); }
+/* Keep the status labels readable and let the detail columns scroll rather than crushing them. */
+.docs-body #implementation-status + table th:first-child,
+.docs-body #implementation-status + table td:first-child { min-width: 112px; white-space: nowrap; }
+.docs-body #implementation-status + table th:nth-child(2),
+.docs-body #implementation-status + table td:nth-child(2),
+.docs-body #implementation-status + table th:nth-child(3),
+.docs-body #implementation-status + table td:nth-child(3) { min-width: 250px; }
 .docs-pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--line); }
 .docs-pager a { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; font-weight: 600; }
 .docs-pager a:hover { border-color: var(--accent); }

@@ -34,7 +34,7 @@ On the shared development machine, follow the active task-manager admission rule
 ## Content and assets
 
 - `/`: app-first alpha landing page and GitHub download link.
-- `/whitepaper`: `src/content/whitepaper.md`, an exact snapshot of app commit `26623f72` (18 October 2026).
+- `/whitepaper`: `src/content/whitepaper.md`, audited against app version 0.1.38 at `dc0fb7c3` (19 October 2026).
 - `/security` and `/privacy`: site-owned public policies and explanations.
 - `/docs/*`: current technical documentation for app version 0.1.38 at commit `dc0fb7c3`, one Markdown file per page in `src/content/docs/`, ordered by frontmatter `order`.
 - `/blog/*`: retained article drafts, not promoted on the homepage.
