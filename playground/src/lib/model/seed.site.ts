@@ -114,7 +114,7 @@ export function seedChats(): Chat[] {
     ],
   };
 
-  const after6 = msg({ from: 'me', at: at(12, 38), text: 'Yes, after 6 works for me', delivery: 'delivered', demoReceipt: 'delivered', edited: true });
+  const after6 = msg({ from: 'me', at: at(12, 38), text: 'Yes, after 6 works for me', delivery: 'delivered', demoReceipt: 'read', edited: true });
   return [
     direct('richard', [
       msg({ from: 'richard', at: at(19, 2, 9), text: 'Could you look at the deck before Thursday? I changed the chart slide again.' }),
@@ -125,15 +125,15 @@ export function seedChats(): Chat[] {
       // Photos (chat/5 sizes): one with a caption, one not downloaded yet (its preview shows), one of mine.
       msg({ from: 'richard', at: at(17, 47, 4), text: 'The whiteboard after last night', file: { name: 'whiteboard.jpg', size: 2.1e6, kind: 'image', progress: 1, state: 'done', w: 4032, h: 3024 } }),
       msg({ from: 'richard', at: at(17, 48, 4), text: '', file: { name: 'napkin-maths.jpg', size: 3.2e6, kind: 'image', progress: 1, state: 'done', w: 3024, h: 4032, remote: true } }),
-      msg({ from: 'me', at: at(17, 52, 4), text: '', delivery: 'delivered', file: { name: 'notes.png', size: 6.4e5, kind: 'image', progress: 1, state: 'done', w: 1080, h: 1080 } }),
+      msg({ from: 'me', at: at(17, 52, 4), text: '', delivery: 'delivered', demoReceipt: 'read', file: { name: 'notes.png', size: 6.4e5, kind: 'image', progress: 1, state: 'done', w: 1080, h: 1080 } }),
       msg({ from: 'richard', at: at(21, 12, 1), text: 'How did the partner meeting go?' }),
-      msg({ from: 'me', at: at(21, 14, 1), text: 'Better than last time. Nobody threw anything', delivery: 'delivered' }),
-      msg({ from: 'me', at: at(21, 15, 1), text: 'Laurie even said “fine”', delivery: 'delivered' }),
+      msg({ from: 'me', at: at(21, 14, 1), text: 'Better than last time. Nobody threw anything', delivery: 'delivered', demoReceipt: 'read' }),
+      msg({ from: 'me', at: at(21, 15, 1), text: 'Laurie even said “fine”', delivery: 'delivered', demoReceipt: 'read' }),
       msg({ from: 'richard', at: at(21, 20, 1), text: 'That’s basically a hug 🙂' }),
       msg({ from: 'me', at: at(21, 32, 1), text: '', call: { kind: 'voice', outcome: 'answered', durationS: 742, direction: 'out' } }),
       msg({ from: 'richard', at: at(12, 36), text: 'Are we still on for the call about the term sheet?' }),
       after6,
-      msg({ from: 'me', at: at(12, 39), text: 'I’ll call from the car, the office is loud', delivery: 'delivered' }),
+      msg({ from: 'me', at: at(12, 39), text: 'I’ll call from the car, the office is loud', delivery: 'delivered', demoReceipt: 'delivered' }),
       msg({ from: 'richard', at: at(12, 41), text: 'Great. Jared laminated a copy, just in case', replyTo: after6.id }),
     ], { unread: 2 }),
     hike,
