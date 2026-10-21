@@ -11,7 +11,12 @@ const downloads = 'https://github.com/osvauld/tinline/releases/latest';
         <h1>A direct line to <em>your people.</em></h1>
         <p class="lead">Messages, calls and files. We don't host servers for your connections: your devices connect directly when possible, or through public relays.</p>
         <div class="actions"><a class="button" href={downloads}>Download Tinline ↗</a></div>
-        <p class="install">On Linux: <code>curl -fsSL https://tinline.osvauld.com/install.sh | sh</code></p>
+        <div class="install">
+          <span>On Linux:</span>
+          <code id="install-command">curl -fsSL https://tinline.osvauld.com/install.sh | sh</code>
+          <button class="install-copy" type="button" aria-label="Copy Linux install command" hidden>Copy</button>
+          <span class="vh" id="install-feedback" role="status"></span>
+        </div>
         <p class="status">Currently in alpha · Android and Linux</p>
       </div>
       <div class="hero-preview">
@@ -23,3 +28,28 @@ const downloads = 'https://github.com/osvauld/tinline/releases/latest';
     </section>
   </main>
 </Layout>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.install-copy');
+  const command = document.querySelector('#install-command');
+  const feedback = document.querySelector('#install-feedback');
+  if (button && command && feedback && navigator.clipboard?.writeText) {
+    button.hidden = false;
+    let reset: ReturnType<typeof setTimeout>;
+    button.addEventListener('click', async () => {
+      clearTimeout(reset);
+      button.disabled = true;
+      try {
+        await navigator.clipboard.writeText(command.textContent ?? '');
+        button.textContent = 'Copied';
+        feedback.textContent = 'Install command copied to clipboard.';
+      } catch {
+        button.textContent = 'Try again';
+        feedback.textContent = 'Could not copy. Select the command and copy it manually.';
+      } finally {
+        button.disabled = false;
+        reset = setTimeout(() => { button.textContent = 'Copy'; }, 3000);
+      }
+    });
+  }
+</script>
