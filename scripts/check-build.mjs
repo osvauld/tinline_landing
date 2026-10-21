@@ -22,6 +22,11 @@ for (const route of ['', 'privacy/', 'security/', 'whitepaper/', 'blog/', ...liv
     return src === '/theme.js' || /^\/_astro\/[a-zA-Z0-9_.-]+\.js$/.test(src ?? '');
   }), `${route || '/'}: inline or foreign client script ${scripts}`);
   assert(html.includes('src="/logo.svg"'), `${route || '/'}: missing app logo`);
+  if (route === '') {
+    assert(html.includes('id="install-command"'), 'Homepage: missing Linux install command');
+    assert(html.includes('aria-label="Copy Linux install command"'), 'Homepage: missing accessible copy button');
+    assert(html.includes('id="install-feedback" role="status"'), 'Homepage: missing clipboard feedback');
+  }
   if (route === 'whitepaper/') {
     assert(html.includes('19 Oct 2026'), 'whitepaper/: stale publication date');
     assert(html.includes('Tinline 0.1.38 at app commit'), 'whitepaper/: stale implementation snapshot');
