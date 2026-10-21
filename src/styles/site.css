@@ -57,6 +57,8 @@ nav a[aria-current="page"] { color: var(--accent-ink); background: var(--accent-
 h1 { font-size: clamp(44px, 6.6vw, 80px); font-weight: 700; letter-spacing: -.035em; line-height: 1.02; margin: 0 0 24px; }
 h1 em { font-style: normal; color: var(--accent-ink); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-block: 32px 24px; }
+.install { margin: -8px 0 24px; color: var(--muted); font-size: 15px; }
+.install code { font: 14px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: var(--ink); background: var(--surface-2); border-radius: 6px; padding: .2em .5em; overflow-wrap: anywhere; user-select: all; }
 .status { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 6px 14px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 14px; }
 .status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
 

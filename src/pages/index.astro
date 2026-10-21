@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import DevicePreview from '../components/DevicePreview.astro';
-const downloads = 'https://github.com/osvauld/tinline/releases';
+const downloads = 'https://github.com/osvauld/tinline/releases/latest';
 ---
 <Layout title="Tinline · A direct line to your people">
   <main id="main">
@@ -11,6 +11,7 @@ const downloads = 'https://github.com/osvauld/tinline/releases';
         <h1>A direct line to <em>your people.</em></h1>
         <p class="lead">Messages, calls and files. We don't host servers for your connections: your devices connect directly when possible, or through public relays.</p>
         <div class="actions"><a class="button" href={downloads}>Download Tinline ↗</a></div>
+        <p class="install">On Linux: <code>curl -fsSL https://tinline.osvauld.com/install.sh | sh</code></p>
         <p class="status">Currently in alpha · Android and Linux</p>
       </div>
       <div class="hero-preview">
