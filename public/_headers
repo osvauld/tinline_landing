@@ -1,0 +1,13 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: no-referrer
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  # Each page carries its own policy in a <meta> tag (Layout.astro; playground/vite.config.ts for /play/).
+  # The header adds what a meta tag can't: only this site may frame its pages (the live phones on the homepage).
+  Content-Security-Policy: frame-ancestors 'self'; base-uri 'none'; form-action 'none'
+
+# The curl installer: shown as text in a browser, never cached past a release.
+/install.sh
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=300

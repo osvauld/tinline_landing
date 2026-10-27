@@ -8,13 +8,13 @@
 - App-first alpha homepage, independent `/play/`, Mobile / Desktop preview switch, silent demo, updated string receipt marks, contact `abe@osvauld.com`.
 - Security/privacy wording aligned with the snapshot for encrypted local stores, public relay/DNS metadata, group-host visibility, signed receipts and recording's planned status.
 - `/docs/*` technical documentation has been refreshed against app version 0.1.38 at `dc0fb7c3`, including current protocol versions, disabled-by-default endpoint rotation, groups, receipts, live video controls and release packaging. It carries a pre-release/audit warning but is no longer labelled as an older draft.
-- Production scripts and CSS remain external. Netlify now runs `npm run check` before accepting a build.
+- Production scripts and CSS remain external. Cloudflare Workers Builds runs `npm run check` before deploying.
 
 ## Owner confirmations before publishing
 
 1. **Download version:** checked 19 October 2026, GitHub's public release listing contains only `v0.1.3` (including a check for prereleases), while the whitepaper and technical docs describe app `0.1.38` at `dc0fb7c3`. The public Cloudflare-backed APT index also lists `0.1.3`. The homepage links to `https://github.com/osvauld/tinline/releases/latest` (the newest published, non-prerelease release) and offers `curl -fsSL https://tinline.osvauld.com/install.sh | sh`, which installs that same release on Linux x86-64 and the documentation explicitly says its implementation is newer than the published release. Do not imply that the downloadable release implements every documented feature.
 2. Review the updated privacy/security wording and refreshed technical docs. The paper remains labelled draft; alpha software has not had an independent security audit.
-3. Confirm the production hosting project's repository, branch and domain. The repository's existing configuration targets Netlify, repository root, production branch `main`, publish directory `dist`, domain `tinline.osvauld.com`. A public HTTP 200 from the domain is not verification of account-level deployment settings.
+3. Confirm the production hosting project's repository, branch and domain. The repository's configuration targets Cloudflare Workers (`wrangler.jsonc`), repository root, production branch `main`, publish directory `dist`, domain `tinline.osvauld.com`. A public HTTP 200 from the domain is not verification of account-level deployment settings.
 4. Authorize the exact push or deploy-preview operation. The canonical local branch is `main`; approval to commit locally does not authorize a push, DNS change or deployment.
 
 ## Validation
