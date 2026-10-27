@@ -5,10 +5,12 @@
    frame shows the same layout, just smaller. Each frame is its own copy of the demo, and follows the site's theme. */
 const { route, title, form = 'android', size = '', eager = false } = Astro.props;
 const [w, h] = form === 'desktop' ? [1280, 800] : [390, 800];
+// Production serves /play without a trailing slash; the dev server proxies only /play/ to the playground.
+const play = import.meta.env.DEV ? '/play/' : '/play';
 ---
 <figure class={`device-frame ${form === 'desktop' ? 'computer' : 'phone'} ${size}`}>
   <div class="viewport">
-    <iframe src={`/play/?embed&form=${form}#${route}`} title={title} loading={eager ? 'eager' : 'lazy'} width={w} height={h}></iframe>
+    <iframe src={`${play}?embed&form=${form}#${route}`} title={title} loading={eager ? 'eager' : 'lazy'} width={w} height={h}></iframe>
   </div>
   <figcaption class="vh">{title}</figcaption>
 </figure>
