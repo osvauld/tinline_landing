@@ -109,7 +109,7 @@ We will update this page when Tinline changes how it handles data and change the
 ## This website
 
 This website has no analytics scripts, advertising or tracking cookies. Its hosting provider,
-Netlify, may process technical request information such as IP addresses and server logs to
+Cloudflare, may process technical request information such as IP addresses and server logs to
 serve and secure the site. If you email us, we receive the information you include and use it
 to respond. Third-party sites linked from this page have their own privacy practices.
 

@@ -17,7 +17,7 @@ const here = (path: string) => (Astro.url.pathname.replace(/\/$/, '') || '/') ==
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <!-- The page policy lives here (netlify.toml only adds framing rules), so /play/ can carry its own. -->
+    <!-- The page policy lives here (public/_headers only adds framing rules), so /play/ can carry its own. -->
     <meta http-equiv="Content-Security-Policy" content={contentPolicy} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />

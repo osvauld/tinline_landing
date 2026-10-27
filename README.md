@@ -59,7 +59,7 @@ Legacy app/playground design QA scripts that require another checkout were not i
 
 ## Deployment
 
-Netlify imports `osvauld/tinline_landing`, production branch `main`, repository root as base, `dist` as publish directory. `netlify.toml` installs the playground dependencies, runs the combined build and runs `npm run check` before accepting it; Netlify installs the root npm dependencies automatically. GitHub Actions installs both sets, type-checks the playground, builds, checks production policies and rejects known analytics references.
+Cloudflare Workers Builds imports `osvauld/tinline_landing`, production branch `main`, repository root as root directory. Build command `npm ci --prefix playground && npm run build && npm run check`, deploy command `npx wrangler deploy`; `wrangler.jsonc` serves `dist` as static assets and `public/_headers` sets the response headers. Node comes from `.nvmrc`. GitHub Actions installs both sets, type-checks the playground, builds, checks production policies and rejects known analytics references.
 
 Keep production CSS external (`build.inlineStylesheets: 'never'`). Pages carry their own CSP; the playground has a separate policy for generated bubble styles. Development-only inline/HMR allowances are not included in production. Fonts and art are self-hosted. No analytics or third-party scripts are included.
 

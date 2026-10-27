@@ -1,6 +1,6 @@
 /* The site speaks the app's design system: colours, radii and depth come from the playground's tokens.css (imported
    in Layout.astro, one source of truth). Type is the app's system stack. Flat by default (hairline, no shadow);
-   only the phone frames sit on the depth ladder. Scripts stay external; no inline CSS (Netlify CSP). */
+   only the phone frames sit on the depth ladder. Scripts stay external; no inline CSS (site CSP). */
 * { box-sizing: border-box; }
 html { background: var(--bg); }
 body {
