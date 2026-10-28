@@ -28,8 +28,8 @@ for (const route of ['', 'privacy/', 'security/', 'whitepaper/', 'blog/', ...liv
     assert(html.includes('id="install-feedback" role="status"'), 'Homepage: missing clipboard feedback');
   }
   if (route === 'whitepaper/') {
-    assert(html.includes('19 Oct 2026'), 'whitepaper/: stale publication date');
-    assert(html.includes('Tinline 0.1.38 at app commit'), 'whitepaper/: stale implementation snapshot');
+    assert(html.includes('28 Oct 2026'), 'whitepaper/: stale publication date');
+    assert(html.includes('Tinline 0.2.4 implementation at app commit'), 'whitepaper/: stale implementation snapshot');
   }
   if (docRoutes.includes(route)) {
     assert(!/<meta name="robots" content="noindex"/.test(html), `${route}: current technical documentation must be indexable`);
