@@ -9,7 +9,7 @@ const downloads = 'https://github.com/osvauld/tinline/releases/latest';
       <div class="hero-copy">
         <p class="eyebrow">Tinline · From Osvauld</p>
         <h1>A direct line to <em>your people.</em></h1>
-        <p class="lead">Messages, calls and files. We don't host servers for your connections: your devices connect directly when possible, or through public relays.</p>
+        <p class="lead">Messages, calls and files. Your devices connect directly when possible, or through public relays.</p>
         <div class="actions"><a class="button" href={downloads}>Download Tinline ↗</a></div>
         <div class="install">
           <span>On Linux:</span>
@@ -25,6 +25,13 @@ const downloads = 'https://github.com/osvauld/tinline/releases/latest';
         <p class="scene-note">A design preview with made-up conversations; no real messages are sent.</p>
       </div>
       <p class="note-line"><strong>Not for emergency calls.</strong> Use your phone's own dialler for emergency services.</p>
+    </section>
+    <section class="shell prose-page prose" aria-labelledby="why-tinline">
+      <h2 id="why-tinline">Why build another messenger?</h2>
+      <p>Tinline started with a question: can a useful messaging app run with very little shared infrastructure?</p>
+      <p>It doesn’t require a phone number or email. You can create several identities in the same app—for different circles, projects or communities—without getting another SIM or registering another service account.</p>
+      <p>Devices exchange messages directly when possible, and member devices host groups. A small notification service wakes supported Android phones for incoming messages and calls, so the app doesn’t need to keep a connection open all day.</p>
+      <p>The experiment is making this practical enough for everyday conversations, with less infrastructure to operate.</p>
     </section>
   </main>
 </Layout>
