@@ -3,11 +3,11 @@
 ## Prepared locally
 
 - Standalone website: this repository (`osvauld/tinline_landing`), no app checkout required.
-- Whitepaper: `src/content/whitepaper.md` incorporates the post-`26623f72` audit and is updated for app version 0.1.38 at `dc0fb7c3` (19 October 2026).
-- Whitepaper SHA-256: `c1a4ddf786673744dec660ee602fa3d6e481138c7b67eb68b02313c853f4b953`.
+- Whitepaper: `src/content/whitepaper.md` incorporates the post-`26623f72` audit and the 29 October 2026 source review (wake service, handshake key disclosure, reserved slots, group host endpoints) and is updated for app version 0.2.5 at `656ebf84` (29 October 2026).
+- Whitepaper SHA-256: `3116297a3c534bec4b028a7112a3b7c6187e9cbcea15534c7c21dca5a113e157`.
 - App-first alpha homepage, independent `/play/`, Mobile / Desktop preview switch, silent demo, updated string receipt marks, contact `abe@osvauld.com`.
 - Security/privacy wording aligned with the snapshot for encrypted local stores, public relay/DNS metadata, group-host visibility, signed receipts and recording's planned status.
-- `/docs/*` technical documentation has been refreshed against app version 0.1.38 at `dc0fb7c3`, including current protocol versions, disabled-by-default endpoint rotation, groups, receipts, live video controls and release packaging. It carries a pre-release/audit warning but is no longer labelled as an older draft.
+- `/docs/*` technical documentation has been refreshed against app version 0.2.5 at `656ebf84`, including the wake service, the two Android editions, several reachable accounts, current protocol versions (`tinline/group/5`), call wake dial-back, public groups, disabled-by-default endpoint rotation and release packaging. It carries a pre-release/audit warning but is no longer labelled as an older draft.
 - Production scripts and CSS remain external. Cloudflare Workers Builds runs `npm run check` before deploying.
 
 ## Owner confirmations before publishing
@@ -32,7 +32,11 @@ Use the shared task manager for local heavy work. On this machine, place both th
 
 `npm run check` includes playground type checks and all production site/docs pages' CSP constraints. Vite's current large-chunk warning is a performance advisory, not a build failure. These checks do not prove app integration, app release readiness, or security-review completion.
 
-### Latest local results (19 October 2026)
+### Latest local results (29 October 2026)
+
+- Tasks 1573 and 1574: after the 0.2.5 refresh, `npm run build` built all 16 Astro pages plus the playground, and `npm run check` passed (Svelte/TypeScript 0 errors and 0 warnings; production CSP/site checks; the whitepaper date, the 0.2.5 implementation snapshot and the docs banner assertions in `scripts/check-build.mjs` updated to match). The separate Vite large-chunk advisory remains. The claims on the refreshed pages were checked against the app source at `656ebf84`, not run on devices.
+
+### Earlier local results (19 October 2026)
 
 - Task 878: fresh root/playground npm installs, `npm run build`, `npm run check` passed in an isolated cache-disk copy. npm reported 0 known vulnerabilities for both dependency sets; this is not a security audit. Svelte/TypeScript: 0 errors and 0 warnings. The separate Vite large-chunk advisory remains.
 - Tasks 910 and 911: app 0.1.38 passed the three named core integration targets (17 tests) and the `video_call` library filter (56 tests). These are targeted Rust checks, not platform or device validation.

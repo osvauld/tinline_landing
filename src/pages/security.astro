@@ -9,7 +9,7 @@ import Layout from '../layouts/Layout.astro';
     <h2>Who we assume might be dishonest</h2>
     <p>Tinline's protocol is open, so anyone can run a modified app, and Tinline can't tell it apart from its own. So we assume anyone other than you and your own devices might be dishonest: contacts, group members, hosts, people on a call, strangers and relays. Their keys are their own, so what they sign is valid. They can do anything their own keys and what you've sent them allow, and nothing that needs someone else's key.</p>
     <p>A good rule to keep: anything you send or say to someone, they can keep and show to anyone. Messages you signed can be proved to be yours, and calls can be recorded.</p>
-    <p>None of this is special to Tinline. Every messenger relies on the other person's app: modified versions of popular messaging apps already keep deleted messages and hide read receipts, and a call on any app can be recorded. What differs is who else you have to trust. A service can ban modified apps from its servers; Tinline has no server, so nobody can ban them for you, and there's also no company in between that you need to trust.</p>
+    <p>None of this is special to Tinline. Every messenger relies on the other person's app: modified versions of popular messaging apps already keep deleted messages and hide read receipts, and a call on any app can be recorded. What differs is who else you have to trust. A service can ban modified apps from its servers. Tinline has no server in the conversation: the only thing we run is a wake service that nudges a sleeping phone and carries no content, so nobody can ban an app for you, and there is no company between you and the person you talk to.</p>
     <table>
       <thead><tr><th>Guaranteed by the maths</th><th>Depends on the other person's app</th></tr></thead>
       <tbody>
@@ -52,6 +52,8 @@ import Layout from '../layouts/Layout.astro';
       <li>Who you talk to and when. Public relays and lookup services see which devices connect, and devices on a direct path learn each other's address. Tinline is not an anonymity tool.</li>
       <li>Copies someone already has, including recordings of calls. Deleting a message asks their app to remove it, which a modified app could ignore.</li>
       <li>Forward secrecy for stored data, and secure deletion on flash storage.</li>
+      <li>Who is nudging whom. Our wake service and Google see when a sleeping phone is woken and from which address, not what is said or by whom.</li>
+      <li>A contact code changed on its way to someone. Your code is a bearer: hand it only to people you trust, over a channel you trust. If someone swaps it in transit, the other person adds the wrong keys, and there is no safety number in the app yet to catch it. Compare identifiers another way when it matters.</li>
     </ul>
     <p><strong>Not for emergency calls.</strong> Keep your phone's own dialler for reaching emergency services.</p>
 

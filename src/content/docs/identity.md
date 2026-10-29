@@ -39,7 +39,7 @@ transport batches; they are not the long-term author identity.
 ## Endpoint rotation
 
 Private and hosting-group endpoint rotation is implemented and crash-safe, but the default policy
-in version 0.1.38 is **disabled**. The apps expose neither an enable switch nor a lost-touch screen.
+in version 0.2.5 is **disabled**. The apps expose neither an enable switch nor a lost-touch screen.
 When a caller explicitly enables the core policy, its standard schedule is seven days plus up to
 one day of persisted jitter, with a seven-day announcement period. A host can then rotate its
 group endpoint too; an ordinary group member does not.
@@ -56,9 +56,17 @@ app controls and recovery UI for that state are not built.
 
 ## Accounts on one installation
 
-One installation may hold several accounts, but only the selected account is unlocked and online.
-Switching accounts closes its endpoints, drops unlocked secrets and opens the selected account;
-switching is refused during a call. Other accounts do not ring on that device.
+One installation may hold several accounts. The open account supplies the screens and keeps its
+endpoint up all the time. Since 0.2.4 the other accounts are reachable too, when the platform can
+supply their remembered keys: on the Play edition a wake push opens a sleeping account in a
+background slot, starts its endpoint for the exchange and closes it again when quiet, and the
+notification names the account; on desktop every remembered account keeps its endpoint connected
+while the app runs. Liberum and the always-on mode keep only the open account connected; the
+others catch up when selected. Switching accounts closes the open account's endpoint and opens
+the selected one; switching is refused during a call, and answering a call for a background
+account switches to it. A passphrase-only account with no remembered key stays asleep until
+unlocked. Explicitly locking Tinline closes every account; a wake cannot reopen one until the app
+is unlocked.
 
 The account directory contains a readable profile and sealed databases. The exact rows evolve,
 but the security boundary is:
@@ -79,7 +87,8 @@ The root secret and current device private key are sealed with AES-256-GCM under
 64 MiB, three iterations and four lanes), and the DEK is wrapped under it. Parameters outside the
 accepted safety range are rejected rather than silently weakened.
 
-A passphrase is optional. Android can remember the DEK using Android Keystore. Desktop remembering
+A passphrase is optional. Android can remember the DEK using Android Keystore; background accounts
+depend on that remembered key. Desktop remembering
 is optional and requires an available secure OS keyring; otherwise a passphrase is required.
 Creating or restoring a no-passphrase account is not committed to disk until the platform has
 successfully saved and read back its remembered key.

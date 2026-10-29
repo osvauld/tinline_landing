@@ -71,6 +71,18 @@ larger files wait for a request.
 Voice messages are Ogg Opus files with duration and waveform metadata. Viewing, playing, sharing
 or exporting media can create plaintext outside Tinline's sealed stores.
 
+## Reaching a sleeping phone
+
+A Play-edition phone does not keep a connection open. When a dial goes unanswered for about 3 s
+and the sender holds a wake token for that device, the sender's device asks the wake service to
+send a content-free push; the phone starts the account's endpoint, dials the sender back and the
+ordinary authenticated synchronization runs. The app sends at most one message wake per 30 s per
+device and backs off while a device does not answer. The wake service and Google learn that a
+device was woken and when, not by whom or what was said. A message still needs the sender's
+device to be running when the phone wakes; if both are asleep by then, it goes through the next
+time both are online. Desktop and Liberum send and receive no wake-ups, and group posts do not
+wake anyone yet.
+
 ## Own-device relay and visibility
 
 Linked devices exchange direct-chat documents over `tinline/self/5`. Relayed batches still need
@@ -93,7 +105,8 @@ receipts are optional per account; delivered receipts continue. See [Receipts](/
 
 ## Current limits
 
-- No third party stores direct messages while both accounts are unreachable.
+- No third party stores direct messages while both accounts are unreachable; a wake-up only brings
+  the recipient online while the sender's device is still running.
 - Author timestamps are not trusted timestamps; they are bounded for document admission.
 - A recipient can keep any version it has seen, ignore cooperative deletion and withhold receipts.
 - Anyone holding an account's root secret can produce valid future author proofs for that account.

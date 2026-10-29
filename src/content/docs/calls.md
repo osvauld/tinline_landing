@@ -21,6 +21,19 @@ Per-device dialing is bounded to 30 seconds, the overall dial phase to 45 second
 ringing to 60 seconds. Simultaneous outgoing calls use a deterministic endpoint-key tie-break so
 one survives.
 
+## Waking a sleeping phone
+
+If a callee device has given the caller a wake token and does not answer the dial within about
+2 s, the caller's device asks the wake service for a content-free call push and keeps redialling
+about once a second; the caller's screen says “Waking their phone…”. The woken phone rings from
+the hint while its endpoint starts and, since 0.2.5, dials the caller back with a signed
+`CallReady`; the caller's leg answers with its `CallHello` on whichever connection comes first,
+and the call then runs as if the caller had dialled. A dial-back from a device the caller does
+not hold for that contact is refused. The dial-back reaches the caller before anyone answers, so
+a contact with a call grant learns that the phone is online. If no `CallHello` arrives within
+15 s of the ring, the ring ends; answering before the connection exists shows “Connecting…” until
+it does. Call wakes are sent at most every 10 s per device. Group calls send no wake-ups yet.
+
 ## Direct audio
 
 Audio is 48 kHz mono Opus in 20 ms QUIC datagrams. The encoder uses VBR, in-band FEC and DRED; the

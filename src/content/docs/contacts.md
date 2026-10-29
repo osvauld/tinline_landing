@@ -13,7 +13,9 @@ band. A ticket lets someone submit a contact request; it does not silently make 
 
 The current ticket text is `OSVC2:` followed by case-insensitive unpadded base32. Its signed body
 contains the issuer's account public key, one current device endpoint, a nonce, expiry, display
-name and relay hint. The account key signs the canonical body under the contact-ticket domain.
+name, relay hint and, when the issuer's device has a push target, a message-only wake token. Codes
+from 0.2.4 onwards are therefore longer; codes made by 0.2.3 or earlier are not accepted. The
+account key signs the canonical body under the contact-ticket domain.
 `osvc1` is not accepted.
 
 A ticket is a bearer capability:
@@ -22,6 +24,11 @@ A ticket is a bearer capability:
 - it can be used by multiple people while valid;
 - resetting it retires the code for new requests;
 - anyone who obtains it can submit a request, so it should be shared intentionally.
+
+Handing out a code is an act of trust: whoever holds it can request contact and, once accepted,
+reach your devices. Blocking, and rotation where enabled, cover the end of that trust. A code
+altered on its way to the recipient is the one case neither covers: the altered code names the
+attacker's keys, and both apps complete a valid exchange with the wrong party.
 
 Visible names, addresses and hints are accepted only when they match the signed body.
 
@@ -39,6 +46,13 @@ The owner verifies the ticket, expiry, connected device, attestation, binding an
 persisting a **pending request**. Requests are keyed by requester DID and bounded to 64 entries;
 throwaway identities can fill that inbox, so the bound is resource control rather than spam
 prevention.
+
+If the ticket carries a wake token and the owner's phone is asleep, the requester's device asks the
+wake service to nudge it; the request waits for that wake before it goes (0.2.5), and wakes for an
+unanswered request slow down over time, about 30 s, 2 min, 10 min and 30 min after the first, then
+hourly. A code's wake tag is shared by everyone holding the code, and the phone acts on at most
+four such wakes per ten minutes. Both sides exchange their own wake tokens during the request and
+the welcome, so a new relationship can wake either phone at once.
 
 The app then offers Accept or Not now. Pending requests are counted on the Contacts tab, and
 Android uses a high-priority contact-request notification when the app is not in the foreground.
@@ -72,7 +86,7 @@ rotation when that optional core policy is enabled. Contacts can therefore infer
 devices listed as callable. They do not receive private device labels.
 
 Succession links let the core recognize an enabled endpoint rotation as continuity with a known
-installation. Version 0.1.38 removed the apps' safety-number comparison, Verify action and
+installation. Since 0.1.38 the apps have had no safety-number comparison, Verify action or
 “Verified” badge; there is no user-facing verification workflow to preserve or reset.
 
 Display names are self-asserted and non-unique. They are sanitized and bounded, but they are not
@@ -85,10 +99,13 @@ Blocking is represented by an account-signed notice and enforced by the blocker'
 Tinline's unmodified app on the other side cooperatively removes the contact entry, but remote
 deletion cannot be forced against a modified client.
 
-A blocked DID cannot use the message/call tokens previously issued by the blocker. It can still
-retain content and endpoint addresses it already learned and can continue attempting connections
-to them. Because rotation is disabled by default, version 0.1.38 does not put a default lifetime on
-that address knowledge. Blocking does not enable rotation and does not alter shared group
-membership.
+A blocked DID cannot use the message/call tokens previously issued by the blocker, and the wake
+tokens it held are revoked at the wake service and refused locally. It can still retain content
+and endpoint addresses it already learned and can continue attempting connections to them. Because
+rotation is disabled by default, version 0.2.5 does not put a default lifetime on that address
+knowledge. Two gaps remain: a blocked contact's devices still count as contact devices for the 8
+reserved connection slots, and if the blocked person hosts a group you share, it keeps your group
+endpoint, which never rotates for a non-hosting member. Blocking does not enable rotation and does
+not alter shared group membership.
 
 Unblocking requires a new contact exchange; cut-offs never move backwards.

@@ -28,12 +28,12 @@ for (const route of ['', 'privacy/', 'security/', 'whitepaper/', 'blog/', ...liv
     assert(html.includes('id="install-feedback" role="status"'), 'Homepage: missing clipboard feedback');
   }
   if (route === 'whitepaper/') {
-    assert(html.includes('28 Oct 2026'), 'whitepaper/: stale publication date');
-    assert(html.includes('Tinline 0.2.4 implementation at app commit'), 'whitepaper/: stale implementation snapshot');
+    assert(html.includes('29 Oct 2026'), 'whitepaper/: stale publication date');
+    assert(html.includes('Tinline 0.2.5 implementation at app commit'), 'whitepaper/: stale implementation snapshot');
   }
   if (docRoutes.includes(route)) {
     assert(!/<meta name="robots" content="noindex"/.test(html), `${route}: current technical documentation must be indexable`);
-    assert(html.includes('Implementation snapshot: Tinline 0.1.38'), `${route}: missing implementation-version notice`);
+    assert(html.includes('Implementation snapshot: Tinline 0.2.5'), `${route}: missing implementation-version notice`);
     assert(html.includes('has not had an independent security audit'), `${route}: missing audit notice`);
     assert(html.includes('TECHNICAL DOCUMENTATION'), `${route}: missing documentation label`);
     assert(!html.includes('older draft'), `${route}: stale older-draft label`);
