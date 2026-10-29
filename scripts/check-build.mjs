@@ -28,8 +28,8 @@ for (const route of ['', 'privacy/', 'security/', 'whitepaper/', 'blog/', ...liv
     assert(html.includes('id="install-feedback" role="status"'), 'Homepage: missing clipboard feedback');
   }
   if (route === 'whitepaper/') {
-    assert(html.includes('19 Oct 2026'), 'whitepaper/: stale publication date');
-    assert(html.includes('Tinline 0.1.38 at app commit'), 'whitepaper/: stale implementation snapshot');
+    assert(html.includes('28 Oct 2026'), 'whitepaper/: stale publication date');
+    assert(html.includes('Tinline 0.2.4 implementation at app commit'), 'whitepaper/: stale implementation snapshot');
   }
   if (docRoutes.includes(route)) {
     assert(!/<meta name="robots" content="noindex"/.test(html), `${route}: current technical documentation must be indexable`);
@@ -57,6 +57,6 @@ for (const font of ['figtree_variable.ttf', 'plexmono_regular.ttf']) {
 }
 const installer = await readFile(`${dist}/install.sh`, 'utf8');
 assert(installer.startsWith('#!/bin/sh\n') && installer.trimEnd().endsWith('main "$@"'), 'install.sh: missing or truncated');
-assert(installer.includes('osvauld/tinline'), 'install.sh: wrong release repository');
+assert(installer.includes('https://dl.tinline.osvauld.com'), 'install.sh: wrong download host');
 assert.equal(await readFile(`${dist}/favicon.svg`, 'utf8'), await readFile(`${dist}/logo.svg`, 'utf8'), 'Favicon must match the app logo');
 console.log('Production pages use the app logo, external CSS, app colors and self-hosted fonts; no inline styles/scripts.');
