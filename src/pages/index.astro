@@ -3,6 +3,9 @@ import Layout from '../layouts/Layout.astro';
 import DevicePreview from '../components/DevicePreview.astro';
 import { TIN, TIN_STROKE } from '../../playground/src/lib/ui/tin-icons.gen';
 const downloads = 'https://github.com/osvauld/tinline/releases/latest';
+// Keep the visible version and APK links together when a release is published.
+const androidVersion = '0.2.3';
+const androidDownloads = `https://github.com/osvauld/tinline/releases/download/v${androidVersion}`;
 ---
 <Layout title="Tinline · Messaging without a phone number">
   <main id="main">
@@ -11,10 +14,26 @@ const downloads = 'https://github.com/osvauld/tinline/releases/latest';
         <h1 class="big">Why build another messenger?</h1>
         <div class="prose">
           <p>Tinline lets you keep several identities in one app, without a phone number or email. Use separate accounts for different circles, projects or communities, without another SIM or a service account registration.</p>
-          <p>It also explores a question: can a useful messaging app run with very little shared infrastructure? Devices exchange messages directly when possible, and member devices host groups. A small notification service wakes supported Android phones for incoming messages and calls, so the app doesn’t need to keep a connection open all day.</p>
+          <p>It also explores a question: can a useful messaging app run with very little shared infrastructure? Devices exchange messages directly when possible, and member devices host groups. In the Play edition, a small notification service wakes Android phones for incoming messages and calls, so the app doesn’t need to keep a connection open all day.</p>
           <p>The experiment is making this practical enough for everyday conversations, with less infrastructure to operate.</p>
         </div>
-        <div class="actions"><a class="button" href={downloads}>Download Tinline ↗</a></div>
+        <section class="android-editions" aria-labelledby="android-editions-heading">
+          <h2 id="android-editions-heading">Two Android editions</h2>
+          <p class="muted">Both let you create multiple identities without a phone number or email.</p>
+          <div class="grid two">
+            <article class="card edition">
+              <h3>Tinline Play</h3>
+              <p>Uses Google’s notification service to wake for incoming messages and calls, so the app can sleep between exchanges. Requires Google Play services.</p>
+              <a class="button quiet" href={`${androidDownloads}/tinline-play-v${androidVersion}.apk`}>Download Play APK ↗</a>
+            </article>
+            <article class="card edition">
+              <h3>Tinline Liberum</h3>
+              <p>Contains no Google SDKs. It keeps a background connection open instead, and only the selected account stays reachable.</p>
+              <a class="button quiet" href={`${androidDownloads}/tinline-liberum-v${androidVersion}.apk`}>Download Liberum APK ↗</a>
+            </article>
+          </div>
+          <p class="small">Android downloads: v{androidVersion}. Only the selected account is reachable in this release. Play support for receiving messages and calls on other remembered accounts is coming in v0.2.4.</p>
+        </section>
         <div class="install">
           <span>On Linux:</span>
           <code id="install-command">curl -fsSL https://tinline.osvauld.com/install.sh | sh</code>
@@ -23,6 +42,7 @@ const downloads = 'https://github.com/osvauld/tinline/releases/latest';
           </button>
           <span class="vh" id="install-feedback" role="status"></span>
         </div>
+        <p class="small"><a href={downloads}>All releases and Linux packages ↗</a></p>
         <p class="status">Currently in alpha · Android and Linux</p>
       </div>
       <div class="hero-preview">
