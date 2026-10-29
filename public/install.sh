@@ -3,10 +3,11 @@
 #
 #   curl -fsSL https://tinline.osvauld.com/install.sh | sh
 #
-# Downloads the release tarball from GitHub, checks its SHA-256 against the
-# release's published checksum, and installs into ~/.local (no root needed).
+# Downloads the release tarball from dl.tinline.osvauld.com, checks its SHA-256
+# against the release's published SHA256SUMS, and installs into ~/.local (no root needed).
+# GitHub is used only to discover the latest version; TINLINE_VERSION skips that lookup.
 #
-#   TINLINE_VERSION=0.1.3   install that release instead of the latest
+#   TINLINE_VERSION=0.2.3   install that release instead of the latest
 #   TINLINE_PREFIX=/opt/x   install somewhere other than ~/.local
 #
 # Pass --uninstall to remove what this script installed.
@@ -14,6 +15,7 @@
 set -eu
 
 REPO="osvauld/tinline"
+DOWNLOAD_HOST="https://dl.tinline.osvauld.com"
 
 say() { printf 'tinline: %s\n' "$*"; }
 die() { printf 'tinline: error: %s\n' "$*" >&2; exit 1; }
@@ -38,13 +40,14 @@ main() {
     return
   fi
 
-  [ "$(uname -s)" = "Linux" ] || die "only Linux is supported by this installer; Android builds are on https://github.com/$REPO/releases"
+  [ "$(uname -s)" = "Linux" ] || die "only Linux is supported by this installer; Android downloads: https://tinline.osvauld.com/#android-editions-heading"
   case "$(uname -m)" in
     x86_64|amd64) ;;
     *) die "only x86-64 Linux builds are published (this machine is $(uname -m))" ;;
   esac
   need curl
   need tar
+  need awk
 
   version="${TINLINE_VERSION:-}"
   if [ -z "$version" ]; then
@@ -59,23 +62,25 @@ main() {
     *) die "could not determine a release version (got '$version')" ;;
   esac
 
-  name="tinline-v$version-x86_64-linux.tar.gz"
-  url="https://github.com/$REPO/releases/download/v$version/$name"
+  name="tinline-$version-linux-x86_64.tar.gz"
+  release_url="$DOWNLOAD_HOST/releases/v$version"
+  url="$release_url/$name"
 
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
 
   say "downloading Tinline $version"
   curl -fL# --proto '=https' --tlsv1.2 -o "$tmp/$name" "$url" || die "download failed: $url"
-  curl -fsSL --proto '=https' --tlsv1.2 -o "$tmp/$name.sha256" "$url.sha256" || die "checksum download failed: $url.sha256"
+  curl -fsSL --proto '=https' --tlsv1.2 -o "$tmp/SHA256SUMS" "$release_url/SHA256SUMS" || die "checksum download failed: $release_url/SHA256SUMS"
 
-  expected=$(cut -d' ' -f1 "$tmp/$name.sha256")
+  expected=$(awk -v name="$name" '$2 == name {print $1; count++} END {if (count != 1) exit 1}' "$tmp/SHA256SUMS") \
+    || die "missing or duplicate checksum for $name"
   actual=$(sha256 "$tmp/$name")
   [ -n "$expected" ] && [ "$expected" = "$actual" ] || die "checksum mismatch for $name (expected $expected, got $actual)"
   say "checksum verified"
 
   tar -xzf "$tmp/$name" -C "$tmp"
-  src="$tmp/tinline-$version-x86_64-linux"
+  src="$tmp/tinline-$version-linux-x86_64"
   [ -x "$src/bin/tinline" ] || die "unexpected archive layout in $name"
 
   mkdir -p "$(dirname "$bin")" "$(dirname "$desktop")" "$(dirname "$icon")"

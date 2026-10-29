@@ -2,10 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import DevicePreview from '../components/DevicePreview.astro';
 import { TIN, TIN_STROKE } from '../../playground/src/lib/ui/tin-icons.gen';
-const downloads = 'https://github.com/osvauld/tinline/releases/latest';
-// Keep the visible version and APK links together when a release is published.
-const androidVersion = '0.2.3';
-const androidDownloads = `https://github.com/osvauld/tinline/releases/download/v${androidVersion}`;
+const downloadHost = 'https://dl.tinline.osvauld.com';
+const releaseDownloads = `${downloadHost}/releases/latest`;
 ---
 <Layout title="Tinline · Messaging without a phone number">
   <main id="main">
@@ -24,15 +22,14 @@ const androidDownloads = `https://github.com/osvauld/tinline/releases/download/v
             <article class="card edition">
               <h3>Tinline Play</h3>
               <p>Uses Google’s notification service to wake for incoming messages and calls, so the app can sleep between exchanges. Requires Google Play services.</p>
-              <a class="button quiet" href={`${androidDownloads}/tinline-play-v${androidVersion}.apk`}>Download Play APK ↗</a>
+              <a class="button quiet" href={`${releaseDownloads}/tinline-play.apk`}>Download Play APK ↗</a>
             </article>
             <article class="card edition">
               <h3>Tinline Liberum</h3>
               <p>Contains no Google SDKs. It keeps a background connection open instead, and only the selected account stays reachable.</p>
-              <a class="button quiet" href={`${androidDownloads}/tinline-liberum-v${androidVersion}.apk`}>Download Liberum APK ↗</a>
+              <a class="button quiet" href={`${releaseDownloads}/tinline-liberum.apk`}>Download Liberum APK ↗</a>
             </article>
           </div>
-          <p class="small">Android downloads: v{androidVersion}. Only the selected account is reachable in this release. Play support for receiving messages and calls on other remembered accounts is coming in v0.2.4.</p>
         </section>
         <div class="install">
           <span>On Linux:</span>
@@ -42,7 +39,12 @@ const androidDownloads = `https://github.com/osvauld/tinline/releases/download/v
           </button>
           <span class="vh" id="install-feedback" role="status"></span>
         </div>
-        <p class="small"><a href={downloads}>All releases and Linux packages ↗</a></p>
+        <p class="small">
+          Linux packages:
+          <a href={`${releaseDownloads}/tinline_amd64.deb`}>.deb ↗</a> ·
+          <a href={`${releaseDownloads}/tinline-linux-x86_64.AppImage`}>AppImage ↗</a> ·
+          <a href={`${releaseDownloads}/tinline-linux-x86_64.tar.gz`}>tar.gz ↗</a>
+        </p>
         <p class="status">Currently in alpha · Android and Linux</p>
       </div>
       <div class="hero-preview">

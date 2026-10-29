@@ -57,6 +57,6 @@ for (const font of ['figtree_variable.ttf', 'plexmono_regular.ttf']) {
 }
 const installer = await readFile(`${dist}/install.sh`, 'utf8');
 assert(installer.startsWith('#!/bin/sh\n') && installer.trimEnd().endsWith('main "$@"'), 'install.sh: missing or truncated');
-assert(installer.includes('osvauld/tinline'), 'install.sh: wrong release repository');
+assert(installer.includes('https://dl.tinline.osvauld.com'), 'install.sh: wrong download host');
 assert.equal(await readFile(`${dist}/favicon.svg`, 'utf8'), await readFile(`${dist}/logo.svg`, 'utf8'), 'Favicon must match the app logo');
 console.log('Production pages use the app logo, external CSS, app colors and self-hosted fonts; no inline styles/scripts.');

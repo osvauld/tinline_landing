@@ -4,6 +4,9 @@ Standalone Astro launch site for **https://tinline.osvauld.com**, with a bundled
 
 - App source: https://github.com/osvauld/tinline
 - Site source: https://github.com/osvauld/tinline_landing
+- Binary downloads and Linux APT repository: https://dl.tinline.osvauld.com (versioned files; no directory listing).
+
+The homepage uses stable download aliases under `https://dl.tinline.osvauld.com/releases/latest/`: `tinline-play.apk`, `tinline-liberum.apk`, `tinline_amd64.deb`, `tinline-linux-x86_64.AppImage` and `tinline-linux-x86_64.tar.gz`. The Cloudflare release publisher must update these aliases after publishing and verifying a release; they are a hosting requirement, not paths created by this website. The versioned archives and checksums remain under `/releases/vX.Y.Z/`, and versioned Debian packages remain under `/apt/pool/main/t/tinline/`. The Linux installer resolves the latest GitHub release at execution time and downloads its archive and `SHA256SUMS` from the new host; `TINLINE_VERSION` is an optional override.
 
 ## Develop
 
