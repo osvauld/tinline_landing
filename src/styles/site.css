@@ -57,8 +57,13 @@ nav a[aria-current="page"] { color: var(--accent-ink); background: var(--accent-
 h1 { font-size: clamp(44px, 6.6vw, 80px); font-weight: 700; letter-spacing: -.035em; line-height: 1.02; margin: 0 0 24px; }
 h1 em { font-style: normal; color: var(--accent-ink); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-block: 32px 24px; }
+.android-editions { margin-block: 32px; }
+.edition { display: flex; flex-direction: column; gap: 16px; }
+.edition h3 { margin: 0; }
+.edition .button { align-self: flex-start; margin-top: auto; }
 .install { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -8px 0 24px; color: var(--muted); font-size: 15px; }
-.install-copy { min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--r-ctl); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.install-copy { width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: var(--r-ctl); background: transparent; color: var(--ink); cursor: pointer; }
+.install-copy:not([hidden]) { display: inline-grid; place-items: center; }
 .install-copy:hover { background: var(--surface-2); }
 .install-copy:disabled { cursor: wait; }
 .install code { font: 14px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: var(--ink); background: var(--surface-2); border-radius: 6px; padding: .2em .5em; overflow-wrap: anywhere; user-select: all; }

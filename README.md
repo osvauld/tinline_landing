@@ -4,6 +4,9 @@ Standalone Astro launch site for **https://tinline.osvauld.com**, with a bundled
 
 - App source: https://github.com/osvauld/tinline
 - Site source: https://github.com/osvauld/tinline_landing
+- Binary downloads and Linux APT repository: https://dl.tinline.osvauld.com (versioned files; no directory listing).
+
+The homepage uses stable download aliases under `https://dl.tinline.osvauld.com/releases/latest/`: `tinline-play.apk`, `tinline-liberum.apk`, `tinline_amd64.deb`, `tinline-linux-x86_64.AppImage` and `tinline-linux-x86_64.tar.gz`. The Cloudflare release publisher must update these aliases after publishing and verifying a release; they are a hosting requirement, not paths created by this website. The versioned archives and checksums remain under `/releases/vX.Y.Z/`, and versioned Debian packages remain under `/apt/pool/main/t/tinline/`. The Linux installer resolves the latest GitHub release at execution time and downloads its archive and `SHA256SUMS` from the new host; `TINLINE_VERSION` is an optional override.
 
 ## Develop
 
@@ -34,13 +37,13 @@ On the shared development machine, follow the active task-manager admission rule
 ## Content and assets
 
 - `/`: app-first alpha landing page and GitHub download link.
-- `/whitepaper`: `src/content/whitepaper.md`, audited against app version 0.1.38 at `dc0fb7c3` (19 October 2026).
+- `/whitepaper`: `src/content/whitepaper.md`, audited against app version 0.2.5 at `656ebf84` (29 October 2026).
 - `/security` and `/privacy`: site-owned public policies and explanations.
-- `/docs/*`: current technical documentation for app version 0.1.38 at commit `dc0fb7c3`, one Markdown file per page in `src/content/docs/`, ordered by frontmatter `order`.
+- `/docs/*`: current technical documentation for app version 0.2.5 at commit `656ebf84`, one Markdown file per page in `src/content/docs/`, ordered by frontmatter `order`.
 - `/blog/*`: retained article drafts, not promoted on the homepage.
 - `/play/`: standalone design playground in `playground/`.
 
-The technical docs were refreshed against app version 0.1.38 (`dc0fb7c3`) and cover identity, contacts, linking, chat, groups, receipts, calls, platforms, threats and builds. Content snapshots do **not** synchronize automatically with the app repository; review implementation and status claims before publishing updates.
+The technical docs were refreshed against app version 0.2.5 (`656ebf84`) and cover identity, contacts, linking, chat, groups, receipts, calls, platforms, threats and builds. Content snapshots do **not** synchronize automatically with the app repository; review implementation and status claims before publishing updates.
 
 Colors, icons, identity patterns and tick geometry are bundled here. To regenerate static art from local exports:
 

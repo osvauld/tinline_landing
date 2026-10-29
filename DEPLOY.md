@@ -3,16 +3,16 @@
 ## Prepared locally
 
 - Standalone website: this repository (`osvauld/tinline_landing`), no app checkout required.
-- Whitepaper: `src/content/whitepaper.md` incorporates the post-`26623f72` audit and is updated for app version 0.1.38 at `dc0fb7c3` (19 October 2026).
-- Whitepaper SHA-256: `c1a4ddf786673744dec660ee602fa3d6e481138c7b67eb68b02313c853f4b953`.
+- Whitepaper: `src/content/whitepaper.md` incorporates the post-`26623f72` audit and the 29 October 2026 source review (wake service, handshake key disclosure, reserved slots, group host endpoints) and is updated for app version 0.2.5 at `656ebf84` (29 October 2026).
+- Whitepaper SHA-256: `3116297a3c534bec4b028a7112a3b7c6187e9cbcea15534c7c21dca5a113e157`.
 - App-first alpha homepage, independent `/play/`, Mobile / Desktop preview switch, silent demo, updated string receipt marks, contact `abe@osvauld.com`.
 - Security/privacy wording aligned with the snapshot for encrypted local stores, public relay/DNS metadata, group-host visibility, signed receipts and recording's planned status.
-- `/docs/*` technical documentation has been refreshed against app version 0.1.38 at `dc0fb7c3`, including current protocol versions, disabled-by-default endpoint rotation, groups, receipts, live video controls and release packaging. It carries a pre-release/audit warning but is no longer labelled as an older draft.
+- `/docs/*` technical documentation has been refreshed against app version 0.2.5 at `656ebf84`, including the wake service, the two Android editions, several reachable accounts, current protocol versions (`tinline/group/5`), call wake dial-back, public groups, disabled-by-default endpoint rotation and release packaging. It carries a pre-release/audit warning but is no longer labelled as an older draft.
 - Production scripts and CSS remain external. Cloudflare Workers Builds runs `npm run check` before deploying.
 
 ## Owner confirmations before publishing
 
-1. **Download version:** checked 19 October 2026, GitHub's public release listing contains only `v0.1.3` (including a check for prereleases), while the whitepaper and technical docs describe app `0.1.38` at `dc0fb7c3`. The public Cloudflare-backed APT index also lists `0.1.3`. The homepage links to `https://github.com/osvauld/tinline/releases/latest` (the newest published, non-prerelease release) and offers `curl -fsSL https://tinline.osvauld.com/install.sh | sh`, which installs that same release on Linux x86-64 and the documentation explicitly says its implementation is newer than the published release. Do not imply that the downloadable release implements every documented feature.
+1. **Latest downloads and host:** binary downloads and the Linux APT repository use `https://dl.tinline.osvauld.com`. Homepage buttons use stable `/releases/latest/` aliases, with no fixed release version. The Cloudflare release publisher must create and update `tinline-play.apk`, `tinline-liberum.apk`, `tinline_amd64.deb`, `tinline-linux-x86_64.AppImage` and `tinline-linux-x86_64.tar.gz` there after verifying the new release's files. These aliases are not implemented by the website; configure short/no-cache behavior for them, preserve immutable versioned files, and verify every alias before publishing the site. The Linux installer uses GitHub only to discover the newest published version unless `TINLINE_VERSION` is specified, then downloads the versioned tarball and `SHA256SUMS` from the new host. On 29 October 2026, the versioned checksum manifests checked on the new host returned 404; the owner confirmed publication is upcoming.
 2. Review the updated privacy/security wording and refreshed technical docs. The paper remains labelled draft; alpha software has not had an independent security audit.
 3. Confirm the production hosting project's repository, branch and domain. The repository's configuration targets Cloudflare Workers (`wrangler.jsonc`), repository root, production branch `main`, publish directory `dist`, domain `tinline.osvauld.com`. A public HTTP 200 from the domain is not verification of account-level deployment settings.
 4. Authorize the exact push or deploy-preview operation. The canonical local branch is `main`; approval to commit locally does not authorize a push, DNS change or deployment.
@@ -32,7 +32,11 @@ Use the shared task manager for local heavy work. On this machine, place both th
 
 `npm run check` includes playground type checks and all production site/docs pages' CSP constraints. Vite's current large-chunk warning is a performance advisory, not a build failure. These checks do not prove app integration, app release readiness, or security-review completion.
 
-### Latest local results (19 October 2026)
+### Latest local results (29 October 2026)
+
+- Tasks 1573 and 1574: after the 0.2.5 refresh, `npm run build` built all 16 Astro pages plus the playground, and `npm run check` passed (Svelte/TypeScript 0 errors and 0 warnings; production CSP/site checks; the whitepaper date, the 0.2.5 implementation snapshot and the docs banner assertions in `scripts/check-build.mjs` updated to match). The separate Vite large-chunk advisory remains. The claims on the refreshed pages were checked against the app source at `656ebf84`, not run on devices.
+
+### Earlier local results (19 October 2026)
 
 - Task 878: fresh root/playground npm installs, `npm run build`, `npm run check` passed in an isolated cache-disk copy. npm reported 0 known vulnerabilities for both dependency sets; this is not a security audit. Svelte/TypeScript: 0 errors and 0 warnings. The separate Vite large-chunk advisory remains.
 - Tasks 910 and 911: app 0.1.38 passed the three named core integration targets (17 tests) and the `video_call` library filter (56 tests). These are targeted Rust checks, not platform or device validation.

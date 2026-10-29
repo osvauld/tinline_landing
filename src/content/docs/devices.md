@@ -61,7 +61,7 @@ Never synchronized: endpoint private keys, the vault data key, passphrase and li
 Contacts receive a DID-signed list of current callable endpoint keys. If the optional core rotation
 policy is enabled, rotation replaces a key beneath the stable installation and DID. The old key
 signs a succession link, allowing a contact with enough recent links to recognize continuity. The
-policy is disabled by default in 0.1.38, and the apps provide no rotation switch or separate
+policy is disabled by default in 0.2.5, and the apps provide no rotation switch or separate
 user-facing verification badge.
 
 A list contains at most eight current devices. Contacts can infer that count, though labels remain
