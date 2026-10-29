@@ -25,7 +25,8 @@ apply to the new one. The recipient account key signs the statement under a rece
 domain. Anyone with the statement and DID can verify it offline.
 
 Group receipts use the analogous model for exact post records plus the member's signed group-state
-frontier, allowing eligibility to be checked against membership.
+frontier, allowing eligibility to be checked against membership. Open groups exchange no member
+receipts.
 
 ## Issuance
 
@@ -41,7 +42,7 @@ hide receipts received from others. Reads made while disabled are not confirmed 
 ## Transport and storage
 
 Direct receipts travel over `tinline/chat/7`; group receipts travel between members and hosts over
-`tinline/group/4`. Sessions compare ledger version vectors, send bounded batches of missing
+`tinline/group/5`. Sessions compare ledger version vectors, send bounded batches of missing
 operations and acknowledge them. Group hosts relay the original member statements byte for byte.
 
 Ledgers are append-only records in sealed stores, keyed by content hash. Opening and importing

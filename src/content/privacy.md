@@ -1,12 +1,13 @@
 # Tinline privacy policy
 
-_Last updated: 19 October 2026_
+_Last updated: 29 October 2026_
 
 Tinline is a calling and messaging app for contacts and groups, made by Osvauld ("we"). It connects your
 device to the devices of your contacts. This policy explains what that means for your data.
 We do not receive a copy of your contacts, messages, attachments or call content, and the app contains no ads,
-analytics or tracking SDKs. Network metadata is processed by peers and third-party infrastructure
-as explained below.
+analytics or tracking SDKs. The one service we run, the wake service described below, sees only
+what is needed to nudge a sleeping phone. Network metadata is processed by peers and third-party
+infrastructure as explained below.
 
 ## What stays on your device
 
@@ -48,6 +49,32 @@ it with can read those fields and try to redeem it.
   the device's IP address, name, phone number or contact list; peers and relays still learn
   network addresses when they connect.
 
+## Wake-ups (Tinline from Google Play)
+
+So that Tinline does not have to keep a connection open all day, the Play edition can rest until
+someone reaches you. When a contact's device cannot reach your phone, it asks our wake service
+(`push.osvauld.com`, a Cloudflare Worker) to send your phone a nudge through Google (Firebase
+Cloud Messaging). The nudge carries no message, name, identifier or call detail.
+
+- **What your phone hands out.** It gives each contact a sealed wake token for each of your
+  devices, and your contact code carries a message-only token so a request can reach you. Only
+  our wake service can open a token. Inside is your phone's push address from Google, a key for
+  the hint your phone receives and a random tag; your contacts cannot read it.
+- **What our wake service sees.** When a nudge is asked for: the push address, the random tag,
+  the kind (message or call), the time and the IP address of the device asking. It does not learn
+  who you are, who the contact is, or anything you send. It keeps no log of nudges. It stores the
+  tags of tokens that were switched off (for example after you block someone or make a new
+  contact code) until they would have expired, rate-limit counters, and the credentials it needs
+  to talk to Google. Cloudflare processes the requests as the host of that service.
+- **What Google sees.** Your phone's push address, the time of each nudge and a small sealed hint
+  only your phone can open. They deliver it as they do for any app.
+- **Several accounts.** With more than one account on the phone, a nudge for an account you do
+  not have open wakes that account in the background, and the notification names it.
+- **Your choice.** “Stay connected all the time” in Settings keeps Tinline's own connection open
+  instead and stops using wake-ups. Blocking a contact switches off the tokens they hold. The
+  Tinline Liberum build from GitHub and this site contains no Google code and never uses
+  wake-ups; the desktop app has none either.
+
 ## Messages and attachments
 
 - Text messages, replies, edits, files, photos and voice messages are shared with the contact
@@ -77,15 +104,16 @@ it with can read those fields and try to redeem it.
 - **Files and photos you select:** to attach them to a conversation or save received files.
 - **Notifications and full-screen notifications:** for incoming messages and calls; incoming
   calls can ring over the lock screen.
-- **Run in the background, start at boot, ignore battery optimisation:** so Tinline can stay
-  reachable and receive calls and messages when it is not on screen.
+- **Run in the background, start at boot, ignore battery optimisation:** so Tinline can wake up
+  for a call or message, or keep its own connection open when you choose “Stay connected all the
+  time” or use the Liberum edition.
 
 ## What we do not do
 
 - No account registration, phone number or email is required.
 - No ads, analytics, crash reporting or tracking SDKs.
 - We do not sell your app data. Your device shares contact information with people you add
-  and network metadata with infrastructure providers as described above.
+  and network metadata with infrastructure providers and our wake service as described above.
 
 ## Children
 
@@ -99,7 +127,8 @@ a contact deletes that conversation locally and blocks subsequent communication 
 identity. Edits or deletions synchronize when devices reconnect, but cannot guarantee that a
 recipient has erased copies. Exported files and information already held by another device
 are not erased by uninstalling. Because we
-hold no app-data copy, there is nothing for us to delete on our side. If you keep your recovery
+hold no app-data copy, there is nothing for us to delete on our side beyond the wake tags above,
+which expire within a month. If you keep your recovery
 phrase, you can restore your identity later.
 
 ## Changes
