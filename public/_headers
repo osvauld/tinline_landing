@@ -6,8 +6,31 @@
   # Each page carries its own policy in a <meta> tag (Layout.astro; playground/vite.config.ts for /play/).
   # The header adds what a meta tag can't: only this site may frame its pages (the live phones on the homepage).
   Content-Security-Policy: frame-ancestors 'self'; base-uri 'none'; form-action 'none'
+  # Chromium browsers fetch the next page on hover (speculation-rules.json); no script needed.
+  Speculation-Rules: "/speculation-rules.json"
 
 # The curl installer: shown as text in a browser, never cached past a release.
 /install.sh
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=300
+
+# Built CSS and JS carry a content hash in their name: a changed file gets a new name,
+# so the browser keeps these for a year and never asks again between pages.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The playground's Vite build hashes its file names the same way.
+/play/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fonts keep their names; a week is long enough to stop re-asking on every page.
+/fonts/*
+  Cache-Control: public, max-age=604800
+
+# Icons and artwork: fixed names, rarely changed.
+/art/*
+  Cache-Control: public, max-age=86400
+
+/speculation-rules.json
+  Content-Type: application/speculationrules+json
+  Cache-Control: public, max-age=3600

@@ -59,4 +59,9 @@ const installer = await readFile(`${dist}/install.sh`, 'utf8');
 assert(installer.startsWith('#!/bin/sh\n') && installer.trimEnd().endsWith('main "$@"'), 'install.sh: missing or truncated');
 assert(installer.includes('https://dl.tinline.osvauld.com'), 'install.sh: wrong download host');
 assert.equal(await readFile(`${dist}/favicon.svg`, 'utf8'), await readFile(`${dist}/logo.svg`, 'utf8'), 'Favicon must match the app logo');
+// Hashed assets are cached for good, and Chromium prefetches the next page from the rules file.
+const headers = await readFile(`${dist}/_headers`, 'utf8');
+for (const rule of ['/_astro/*', '/play/assets/*']) assert(headers.includes(`${rule}\n  Cache-Control: public, max-age=31536000, immutable`), `_headers: ${rule} is not cached as immutable`);
+assert(headers.includes('Speculation-Rules: "/speculation-rules.json"'), '_headers: missing the Speculation-Rules header');
+assert(JSON.parse(await readFile(`${dist}/speculation-rules.json`, 'utf8')).prefetch?.length > 0, 'speculation-rules.json: no prefetch rule');
 console.log('Production pages use the app logo, external CSS, app colors and self-hosted fonts; no inline styles/scripts.');
