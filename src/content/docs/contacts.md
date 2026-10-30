@@ -103,9 +103,9 @@ A blocked DID cannot use the message/call tokens previously issued by the blocke
 tokens it held are revoked at the wake service and refused locally. It can still retain content
 and endpoint addresses it already learned and can continue attempting connections to them. Because
 rotation is disabled by default, version 0.2.5 does not put a default lifetime on that address
-knowledge. Two gaps remain: a blocked contact's devices still count as contact devices for the 8
-reserved connection slots, and if the blocked person hosts a group you share, it keeps your group
-endpoint, which never rotates for a non-hosting member. Blocking does not enable rotation and does
+knowledge. In 0.2.5 a blocked contact's devices still counted as contact devices for the 8 reserved
+connection slots; 0.2.6 fixed that. One gap remains: if the blocked person hosts a group you share,
+it keeps your group endpoint, which never rotates for a non-hosting member. Blocking does not enable rotation and does
 not alter shared group membership.
 
 Unblocking requires a new contact exchange; cut-offs never move backwards.

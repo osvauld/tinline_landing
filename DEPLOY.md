@@ -4,7 +4,7 @@
 
 - Standalone website: this repository (`osvauld/tinline_landing`), no app checkout required.
 - Whitepaper: `src/content/whitepaper.md` incorporates the post-`26623f72` audit and the 29 October 2026 source review (wake service, handshake key disclosure, reserved slots, group host endpoints) and is updated for app version 0.2.5 at `656ebf84` (29 October 2026).
-- Whitepaper SHA-256: `3116297a3c534bec4b028a7112a3b7c6187e9cbcea15534c7c21dca5a113e157`.
+- Whitepaper SHA-256: `010c69b3f4bb251f2ad6a20c92401e28b7a975d2583fc74192e1d8e4bb2c5ff7`.
 - App-first alpha homepage, independent `/play/`, Mobile / Desktop preview switch, silent demo, updated string receipt marks, contact `abe@osvauld.com`.
 - Security/privacy wording aligned with the snapshot for encrypted local stores, public relay/DNS metadata, group-host visibility, signed receipts and recording's planned status.
 - `/docs/*` technical documentation has been refreshed against app version 0.2.5 at `656ebf84`, including the wake service, the two Android editions, several reachable accounts, current protocol versions (`tinline/group/5`), call wake dial-back, public groups, disabled-by-default endpoint rotation and release packaging. It carries a pre-release/audit warning but is no longer labelled as an older draft.
