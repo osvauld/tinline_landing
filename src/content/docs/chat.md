@@ -45,8 +45,9 @@ but cannot produce another person's author proof.
 
 `tinline/chat/7` uses u32-length-prefixed postcard frames with a 16 MiB frame ceiling. Both sides
 first authenticate the QUIC peer's account attestation and message token; first-message and reply
-steps have a 15-second authentication timeout. The broad pre-auth frame ceiling is still 16 MiB,
-which is a hardening limitation rather than a denial-of-service guarantee.
+steps have a 15-second authentication timeout. Since 0.2.6 the first frame, read before the peer is
+authenticated, is capped at 64 KiB (in 0.2.5 it shared the 16 MiB ceiling). This is a hardening
+bound, not a denial-of-service guarantee.
 
 Peers exchange document names and version vectors, then only the operations the other side lacks.
 Local changes are persisted with outbox state and retried on write, startup and network changes.
