@@ -20,7 +20,7 @@ potentially malicious within the keys and content they legitimately possess.
 | adversary | can | cannot |
 |---|---|---|
 | Stranger who knows a device address | Open connections, fill pending slots until bounds apply and keep dialing. At an IP address and port it reaches directly, complete the transport handshake and so learn that the device is online and which endpoint key it uses now. | Read anything, forge a message, become a contact without acceptance. |
-| Blocked former contact | Keep what it holds and keep dialing addresses it learned. Its devices still occupy the 8 reserved contact slots (open gap). If it hosts a group you share, keep a lasting address for your group endpoint. | Authenticate for chat, calls or blobs; use tokens you issued; wake your phone once its tokens are revoked. |
+| Blocked former contact | Keep what it holds and keep dialing addresses it learned. In 0.2.5 its devices could still occupy the 8 reserved contact slots; since 0.2.6 they wait in the general pool like a stranger's. If it hosts a group you share, keep a lasting address for your group endpoint. | Authenticate for chat, calls or blobs; use tokens you issued; wake your phone once its tokens are revoked. |
 | Contact | Keep everything you sent it; forward your signed device list, including a rotated address; wake your phone within the limits and learn that it is online before anyone answers. | Sign as you; reuse a message in another chat or day. |
 | Group host | Read, withhold, delay or record what it carries. | Forge a post or change membership. |
 | Wake-service operator, or Cloudflare as its host | See push addresses, random tags, wake kind, request IPs and timing; correlate them; delay, suppress or fabricate wake hints. | Read content from a wake request; forge author proofs or receipts; make a device accept a message or call. |
@@ -95,16 +95,17 @@ storage layout. Notifications, logs and exported plaintext are outside sealed st
 ## Abuse and resource limits
 
 Implemented bounds: pending private handshakes are limited to 24 general slots plus 8 reserved for
-contacts' devices, first authentication steps time out after 15 s, call/contact control frames are
-capped at 64 KiB, contact requests are capped at 64 and group-code attempts are rate-limited. The
+devices of contacts you have not blocked (since 0.2.6), first authentication steps time out after 15 s, call/contact control frames are
+capped at 64 KiB, the first frame of a chat or own-device session is capped at 64 KiB and a group
+hello at 1 MiB, with at most 32 unidentified connections on the group endpoint (since 0.2.6), contact requests are capped at 64 and group-code attempts are rate-limited. The
 wake service allows about two message wakes and three call wakes per minute per token tag and
 twenty registrations per minute per IP address; the app itself sends at most one message wake per
 30 s per device, backs off for unanswered requests and acts on at most four wakes per ten minutes
 from a contact code's shared tag.
 
-Known gaps in 0.2.5: chat, own-device and group protocols accept frames up to 16 MiB before
-application authentication completes; a blocked contact's devices still count as contact devices
-for the reserved slots; a contact-request inbox can be filled with throwaway identities; and a
+Known gaps in 0.2.5, fixed in 0.2.6: chat, own-device and group protocols accepted frames up to
+16 MiB before application authentication completed, and a blocked contact's devices still counted
+as contact devices for the reserved slots. Remaining gaps: a contact-request inbox can be filled with throwaway identities; and a
 blocked former contact can keep dialing an address it knows, with endpoint rotation off by
 default, so there is no automatic expiry for that knowledge. Public relay and wake-service
 capacity are not under the app's control. None of this supports a denial-of-service-resistance

@@ -104,7 +104,7 @@ control. Blocking and group removal do not enable or trigger it. See
 | Groups | Signed record log, host replication, history, invitations, public open links, chat requests, images, voice posts and signed member receipts | Group edits, deletion, reactions, general files and video |
 | Calls | 1:1 audio/video, group audio, host failover, Android Telecom | Group video; cooperative recording UI is still design work |
 | Platforms | Android 9+ in two editions, Linux x86-64 packages | iOS release; Windows and macOS packages/support |
-| Hardening | Admission limits, handshake timeouts, frame bounds on several paths, wake rate limits | No denial-of-service-resistance guarantee; 16 MiB pre-auth frames on chat, sync and group paths; blocked devices still use reserved slots; no relay-only setting |
+| Hardening | Admission limits, handshake timeouts, frame bounds on several paths, wake rate limits | No denial-of-service-resistance guarantee; no relay-only setting. The 16 MiB pre-auth frames and blocked devices in reserved slots of 0.2.5 were fixed in 0.2.6 |
 
 ## Read next
 
